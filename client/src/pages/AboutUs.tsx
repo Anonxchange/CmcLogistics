@@ -2,6 +2,9 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Truck, Users, Globe, Award, Shield, Clock } from 'lucide-react';
+import img0898 from '@assets/generated_images/IMG_0898.jpeg';
+import img0899 from '@assets/generated_images/IMG_0899.jpeg';
+import img0900 from '@assets/generated_images/IMG_0900.jpeg';
 
 export default function AboutUs() {
   const milestones = [
@@ -144,6 +147,68 @@ export default function AboutUs() {
                 <div className="flex-1 text-muted-foreground">{milestone.event}</div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Our Facilities */}
+      <section className="py-16 lg:py-24 bg-muted/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-4 mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground">Our Facilities</h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              A glimpse into our world-class logistics operations
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="space-y-4">
+              <div className="group relative overflow-hidden rounded-lg shadow-lg hover-elevate transition-all duration-300">
+                <img 
+                  src={img0898} 
+                  alt="CMC Logistics facility" 
+                  className="w-full h-80 object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-semibold text-foreground">State-of-the-Art Warehouse</h3>
+                <p className="text-muted-foreground">
+                  Our modern warehousing facilities equipped with advanced inventory management systems and climate-controlled storage areas ensure your cargo is handled with precision and care.
+                </p>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="group relative overflow-hidden rounded-lg shadow-lg hover-elevate transition-all duration-300">
+                <img 
+                  src={img0899} 
+                  alt="CMC Logistics operations" 
+                  className="w-full h-80 object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-semibold text-foreground">Global Operations Center</h3>
+                <p className="text-muted-foreground">
+                  Our 24/7 operations center monitors shipments worldwide in real-time, providing seamless coordination across all transportation modes and ensuring on-time delivery.
+                </p>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="group relative overflow-hidden rounded-lg shadow-lg hover-elevate transition-all duration-300">
+                <img 
+                  src={img0900} 
+                  alt="CMC Logistics team" 
+                  className="w-full h-80 object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-semibold text-foreground">Dedicated Expert Team</h3>
+                <p className="text-muted-foreground">
+                  Our experienced logistics professionals bring decades of industry expertise, working together to deliver customized solutions for your unique shipping needs.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
