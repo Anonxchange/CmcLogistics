@@ -155,7 +155,7 @@ export default function CarPurchase() {
               <CarouselItem>
                 <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
                   <img 
-                    src="/cars/modern_luxury_car_de_7952a385.jpg" 
+                    src="/cars/IMG_0910.jpeg" 
                     alt="Latest luxury vehicles" 
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   />
@@ -171,7 +171,7 @@ export default function CarPurchase() {
               <CarouselItem>
                 <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
                   <img 
-                    src="/cars/modern_luxury_car_de_10b558e8.jpg" 
+                    src="/cars/IMG_0911.jpeg" 
                     alt="Modern sports cars" 
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   />
@@ -187,7 +187,7 @@ export default function CarPurchase() {
               <CarouselItem>
                 <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
                   <img 
-                    src="/cars/modern_luxury_car_de_75e7aab2.jpg" 
+                    src="/cars/IMG_0909.png" 
                     alt="Executive sedans" 
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   />
@@ -203,7 +203,7 @@ export default function CarPurchase() {
               <CarouselItem>
                 <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
                   <img 
-                    src="/cars/modern_luxury_car_de_e67fefe2.jpg" 
+                    src="/cars/IMG_0913.jpeg" 
                     alt="Electric and hybrid vehicles" 
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   />
@@ -219,7 +219,7 @@ export default function CarPurchase() {
               <CarouselItem>
                 <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
                   <img 
-                    src="/cars/modern_luxury_car_de_44c608d4.jpg" 
+                    src="/cars/IMG_0914.jpeg" 
                     alt="SUVs and family vehicles" 
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   />
