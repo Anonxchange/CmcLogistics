@@ -2,16 +2,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MapPin, Package, Calendar, User, Phone, Mail, Eye } from 'lucide-react';
+import { MapPin, Package, Calendar, User, Phone, Mail, Eye, Send } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface ShipmentsListProps {
   shipments: any[];
   onUpdateTracking: (shipment: any) => void;
   onRefresh: () => void;
+  onSendEmail?: (shipment: any) => void;
 }
 
-export default function ShipmentsList({ shipments, onUpdateTracking, onRefresh }: ShipmentsListProps) {
+export default function ShipmentsList({ shipments, onUpdateTracking, onRefresh, onSendEmail }: ShipmentsListProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-500 hover:bg-yellow-600';
@@ -57,8 +58,8 @@ export default function ShipmentsList({ shipments, onUpdateTracking, onRefresh }
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <Table className="min-w-[800px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Tracking Number</TableHead>
@@ -118,15 +119,28 @@ export default function ShipmentsList({ shipments, onUpdateTracking, onRefresh }
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => onUpdateTracking(shipment)}
-                        data-testid={`button-update-tracking-${shipment.tracking_number}`}
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        Update
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => onUpdateTracking(shipment)}
+                          data-testid={`button-update-tracking-${shipment.tracking_number}`}
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          <span className="hidden sm:inline">Update</span>
+                        </Button>
+                        {onSendEmail && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => onSendEmail(shipment)}
+                            data-testid={`button-send-email-${shipment.tracking_number}`}
+                          >
+                            <Send className="w-4 h-4 sm:mr-1" />
+                            <span className="hidden sm:inline">Email</span>
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
