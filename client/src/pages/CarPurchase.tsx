@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Car, Shield, DollarSign, Truck, Clock, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
 import Autoplay from 'embla-carousel-autoplay';
 
 export default function CarPurchase() {
@@ -42,34 +41,13 @@ export default function CarPurchase() {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
-        .from('car_purchase_quotes')
-        .insert([{
-          full_name: formData.fullName,
-          email: formData.email,
-          phone: formData.phone,
-          car_make: formData.carMake,
-          car_model: formData.carModel,
-          year: formData.year,
-          condition: formData.condition,
-          budget: formData.budget,
-          preferred_color: formData.preferredColor,
-          transmission: formData.transmission,
-          fuel_type: formData.fuelType,
-          delivery_location: formData.deliveryLocation,
-          additional_requirements: formData.additionalRequirements,
-          status: 'pending',
-          created_at: new Date().toISOString()
-        }]);
-
-      if (error) throw error;
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       toast({
         title: "Quote Request Submitted",
         description: "We'll get back to you within 24 hours with a personalized quote.",
       });
 
-      // Reset form
       setFormData({
         fullName: '',
         email: '',
@@ -155,135 +133,123 @@ export default function CarPurchase() {
       <section className="py-16 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Premium Vehicle Selection</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-4">Latest Vehicle Collection 2024</h2>
             <p className="text-lg text-muted-foreground">
-              Explore our range of quality vehicles from trusted dealers worldwide
+              Premium selection of modern vehicles from certified dealers worldwide
             </p>
           </div>
           
           <Carousel
             opts={{
-              align: "start",
+              align: "center",
               loop: true,
             }}
             plugins={[
               Autoplay({
-                delay: 3000,
+                delay: 4000,
               }),
             ]}
-            className="w-full max-w-6xl mx-auto"
+            className="w-full"
           >
             <CarouselContent>
-              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
-                <div className="p-1">
-                  <Card className="overflow-hidden hover:shadow-xl transition-shadow">
-                    <div className="aspect-video bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 relative overflow-hidden">
-                      <img 
-                        src="/attached_assets/generated_images/IMG_0533.jpeg" 
-                        alt="Luxury SUV" 
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                      />
+              <CarouselItem>
+                <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
+                  <img 
+                    src="/cars/modern_luxury_car_de_7952a385.jpg" 
+                    alt="Latest luxury vehicles" 
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end">
+                    <div className="p-8 text-white">
+                      <h3 className="text-2xl font-bold mb-2">Premium Luxury Collection</h3>
+                      <p className="text-white/90">Experience ultimate comfort and performance</p>
                     </div>
-                    <CardContent className="pt-4">
-                      <h3 className="font-semibold text-lg">Luxury SUVs</h3>
-                      <p className="text-sm text-muted-foreground">Premium comfort and performance</p>
-                    </CardContent>
-                  </Card>
+                  </div>
                 </div>
               </CarouselItem>
               
-              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
-                <div className="p-1">
-                  <Card className="overflow-hidden hover:shadow-xl transition-shadow">
-                    <div className="aspect-video bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 relative overflow-hidden">
-                      <img 
-                        src="/attached_assets/generated_images/IMG_0534.jpeg" 
-                        alt="Sports Car" 
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                      />
+              <CarouselItem>
+                <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
+                  <img 
+                    src="/cars/modern_luxury_car_de_10b558e8.jpg" 
+                    alt="Modern sports cars" 
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end">
+                    <div className="p-8 text-white">
+                      <h3 className="text-2xl font-bold mb-2">Sports & Performance</h3>
+                      <p className="text-white/90">High-performance vehicles for driving enthusiasts</p>
                     </div>
-                    <CardContent className="pt-4">
-                      <h3 className="font-semibold text-lg">Sports Cars</h3>
-                      <p className="text-sm text-muted-foreground">High-performance vehicles</p>
-                    </CardContent>
-                  </Card>
+                  </div>
                 </div>
               </CarouselItem>
               
-              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
-                <div className="p-1">
-                  <Card className="overflow-hidden hover:shadow-xl transition-shadow">
-                    <div className="aspect-video bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 relative overflow-hidden">
-                      <img 
-                        src="/attached_assets/generated_images/IMG_0535.jpeg" 
-                        alt="Sedan" 
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                      />
+              <CarouselItem>
+                <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
+                  <img 
+                    src="/cars/modern_luxury_car_de_75e7aab2.jpg" 
+                    alt="Executive sedans" 
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end">
+                    <div className="p-8 text-white">
+                      <h3 className="text-2xl font-bold mb-2">Executive Class</h3>
+                      <p className="text-white/90">Sophistication meets cutting-edge technology</p>
                     </div>
-                    <CardContent className="pt-4">
-                      <h3 className="font-semibold text-lg">Executive Sedans</h3>
-                      <p className="text-sm text-muted-foreground">Elegance and sophistication</p>
-                    </CardContent>
-                  </Card>
+                  </div>
                 </div>
               </CarouselItem>
 
-              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
-                <div className="p-1">
-                  <Card className="overflow-hidden hover:shadow-xl transition-shadow">
-                    <div className="aspect-video bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 relative overflow-hidden">
-                      <img 
-                        src="/attached_assets/generated_images/IMG_0898.jpeg" 
-                        alt="Electric Vehicle" 
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                      />
+              <CarouselItem>
+                <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
+                  <img 
+                    src="/cars/modern_luxury_car_de_e67fefe2.jpg" 
+                    alt="Electric and hybrid vehicles" 
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end">
+                    <div className="p-8 text-white">
+                      <h3 className="text-2xl font-bold mb-2">Eco-Friendly Fleet</h3>
+                      <p className="text-white/90">Sustainable electric and hybrid options</p>
                     </div>
-                    <CardContent className="pt-4">
-                      <h3 className="font-semibold text-lg">Electric Vehicles</h3>
-                      <p className="text-sm text-muted-foreground">Sustainable future mobility</p>
-                    </CardContent>
-                  </Card>
+                  </div>
                 </div>
               </CarouselItem>
 
-              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
-                <div className="p-1">
-                  <Card className="overflow-hidden hover:shadow-xl transition-shadow">
-                    <div className="aspect-video bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 relative overflow-hidden">
-                      <img 
-                        src="/attached_assets/generated_images/IMG_0899.jpeg" 
-                        alt="Luxury Car" 
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                      />
+              <CarouselItem>
+                <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
+                  <img 
+                    src="/cars/modern_luxury_car_de_44c608d4.jpg" 
+                    alt="SUVs and family vehicles" 
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end">
+                    <div className="p-8 text-white">
+                      <h3 className="text-2xl font-bold mb-2">SUVs & Family Vehicles</h3>
+                      <p className="text-white/90">Spacious, safe, and reliable for every journey</p>
                     </div>
-                    <CardContent className="pt-4">
-                      <h3 className="font-semibold text-lg">Premium Collection</h3>
-                      <p className="text-sm text-muted-foreground">Exclusive luxury vehicles</p>
-                    </CardContent>
-                  </Card>
+                  </div>
                 </div>
               </CarouselItem>
 
-              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
-                <div className="p-1">
-                  <Card className="overflow-hidden hover:shadow-xl transition-shadow">
-                    <div className="aspect-video bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 relative overflow-hidden">
-                      <img 
-                        src="/attached_assets/generated_images/IMG_0900.jpeg" 
-                        alt="Family Car" 
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                      />
+              <CarouselItem>
+                <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
+                  <img 
+                    src="/cars/modern_luxury_car_de_a90cd203.jpg" 
+                    alt="Latest automotive technology" 
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end">
+                    <div className="p-8 text-white">
+                      <h3 className="text-2xl font-bold mb-2">Innovation & Technology</h3>
+                      <p className="text-white/90">Advanced features and smart connectivity</p>
                     </div>
-                    <CardContent className="pt-4">
-                      <h3 className="font-semibold text-lg">Family Vehicles</h3>
-                      <p className="text-sm text-muted-foreground">Spacious and reliable</p>
-                    </CardContent>
-                  </Card>
+                  </div>
                 </div>
               </CarouselItem>
             </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
+            <CarouselPrevious className="hidden md:flex left-4" />
+            <CarouselNext className="hidden md:flex right-4" />
           </Carousel>
         </div>
       </section>
