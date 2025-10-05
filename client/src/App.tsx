@@ -19,6 +19,7 @@ import CookiePolicy from "@/pages/CookiePolicy";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsConditions from "@/pages/TermsConditions";
 import NewsUpdates from "@/pages/NewsUpdates";
+import CarPurchase from "@/pages/CarPurchase";
 import CookieBanner from "@/components/CookieBanner";
 
 function Router() {
@@ -40,6 +41,7 @@ function Router() {
       <Route path="/privacy-notice" component={PrivacyPolicy} />
       <Route path="/terms-conditions" component={TermsConditions} />
       <Route path="/news-updates" component={NewsUpdates} />
+      <Route path="/car-purchase" component={CarPurchase} />
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>
