@@ -13,13 +13,15 @@ import {
   Truck,
   Clock,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Menu
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 import CreateShipmentModal from '@/components/CreateShipmentModal';
 import ShipmentsList from '@/components/ShipmentsList';
 import TrackingUpdatesModal from '@/components/TrackingUpdatesModal';
+import SendEmailModal from '@/components/SendEmailModal';
 
 interface AdminDashboardProps {
   admin: any;
@@ -31,6 +33,7 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
   const [shipments, setShipments] = useState<any[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [selectedShipment, setSelectedShipment] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -92,6 +95,11 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
     setSelectedShipment(null);
   };
 
+  const handleSendEmail = async (shipment: any) => {
+    setSelectedShipment(shipment);
+    setIsEmailModalOpen(true);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-500';
@@ -116,37 +124,40 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-900 border-b border-border">
+      <header className="bg-white dark:bg-gray-900 border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="flex items-center space-x-2">
                 <div className="flex items-center justify-center w-8 h-8 bg-primary rounded-md">
                   <Truck className="w-5 h-5 text-primary-foreground" />
                 </div>
-                <span className="text-lg font-bold">CMC Logistics Admin</span>
+                <span className="text-base sm:text-lg font-bold hidden sm:inline">CMC Logistics Admin</span>
+                <span className="text-base font-bold sm:hidden">Admin</span>
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-xs sm:text-sm text-muted-foreground hidden md:block">
                 Welcome, {admin.username}
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <Button
                 onClick={() => setIsCreateModalOpen(true)}
                 className="bg-primary hover:bg-primary/90"
                 data-testid="button-create-shipment"
+                size="sm"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Create Shipment
+                <Plus className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Create Shipment</span>
               </Button>
               <Button
                 variant="ghost"
                 onClick={onLogout}
                 data-testid="button-logout"
+                size="sm"
               >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
+                <LogOut className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </div>
@@ -228,6 +239,7 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
               shipments={shipments}
               onUpdateTracking={handleUpdateTracking}
               onRefresh={fetchDashboardData}
+              onSendEmail={handleSendEmail}
             />
           </TabsContent>
 
@@ -266,6 +278,15 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
         onSuccess={handleTrackingUpdate}
         shipment={selectedShipment}
         adminId={admin.id}
+      />
+
+      <SendEmailModal
+        isOpen={isEmailModalOpen}
+        onClose={() => {
+          setIsEmailModalOpen(false);
+          setSelectedShipment(null);
+        }}
+        shipment={selectedShipment}
       />
     </div>
   );
