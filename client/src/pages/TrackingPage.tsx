@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,9 +9,23 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { format, parseISO, isValid } from 'date-fns';
 import { supabase } from '@/lib/supabase';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+
+// Mapbox access token
+const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiY21jbG9naXN0aWNzIiwiYSI6ImNtZ2R0eW42YzFrNzQybHM3eDFlNjdoaXgifQ.3RMOjZq_jNHwnZcLlzDDvg';
 
 // Add print styles
 const printStyles = `
+  @keyframes pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    }
+    50% {
+      box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    }
+  }
+
   @media print {
     .print\:hidden { display: none !important; }
     .bg-primary { background-color: #000 !important; }
@@ -57,6 +71,164 @@ export default function TrackingPage() {
   const [error, setError] = useState('');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const { toast } = useToast();
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+
+  // Initialize Mapbox map when tracking data is available
+  useEffect(() => {
+    if (!trackingData || !mapContainer.current) return;
+
+    // Set Mapbox access token
+    mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
+
+    // Initialize map
+    if (!map.current) {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [0, 20],
+        zoom: 1.5,
+        projection: 'mercator'
+      });
+
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    }
+
+    // Parse addresses to get coordinates (simplified version)
+    const senderAddress = trackingData.shipment.senderAddress || '';
+    const recipientAddress = trackingData.shipment.recipientAddress || '';
+    const currentLocation = trackingData.shipment.currentLocation || '';
+
+    // For demo purposes, we'll use approximate coordinates
+    // In production, you'd use a geocoding service
+    const getCoordinates = (address: string): [number, number] => {
+      if (address.toLowerCase().includes('lagos') || address.toLowerCase().includes('nigeria')) {
+        return [3.3792, 6.5244]; // Lagos, Nigeria
+      } else if (address.toLowerCase().includes('london') || address.toLowerCase().includes('uk')) {
+        return [-0.1276, 51.5074]; // London, UK
+      } else if (address.toLowerCase().includes('new york') || address.toLowerCase().includes('usa')) {
+        return [-74.0060, 40.7128]; // New York, USA
+      } else if (address.toLowerCase().includes('dubai') || address.toLowerCase().includes('uae')) {
+        return [55.2708, 25.2048]; // Dubai, UAE
+      } else if (address.toLowerCase().includes('tokyo') || address.toLowerCase().includes('japan')) {
+        return [139.6917, 35.6895]; // Tokyo, Japan
+      }
+      return [0, 0];
+    };
+
+    const originCoords = getCoordinates(senderAddress);
+    const destinationCoords = getCoordinates(recipientAddress);
+    const currentCoords = currentLocation ? getCoordinates(currentLocation) : null;
+
+    // Clear existing markers and layers
+    const existingMarkers = document.getElementsByClassName('mapboxgl-marker');
+    while (existingMarkers[0]) {
+      existingMarkers[0].remove();
+    }
+
+    if (map.current.getLayer('route')) {
+      map.current.removeLayer('route');
+    }
+    if (map.current.getSource('route')) {
+      map.current.removeSource('route');
+    }
+
+    // Add origin marker
+    const originEl = document.createElement('div');
+    originEl.className = 'custom-marker';
+    originEl.style.width = '32px';
+    originEl.style.height = '32px';
+    originEl.style.backgroundColor = '#22c55e';
+    originEl.style.borderRadius = '50%';
+    originEl.style.border = '3px solid white';
+    originEl.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+
+    new mapboxgl.Marker(originEl)
+      .setLngLat(originCoords)
+      .setPopup(new mapboxgl.Popup().setHTML(`<strong>Origin</strong><br/>${senderAddress.split(',')[0]}`))
+      .addTo(map.current);
+
+    // Add destination marker
+    const destEl = document.createElement('div');
+    destEl.className = 'custom-marker';
+    destEl.style.width = '32px';
+    destEl.style.height = '32px';
+    destEl.style.backgroundColor = trackingData.shipment.status === 'delivered' ? '#22c55e' : '#a855f7';
+    destEl.style.borderRadius = '50%';
+    destEl.style.border = '3px solid white';
+    destEl.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+
+    new mapboxgl.Marker(destEl)
+      .setLngLat(destinationCoords)
+      .setPopup(new mapboxgl.Popup().setHTML(`<strong>${trackingData.shipment.status === 'delivered' ? 'Delivered' : 'Destination'}</strong><br/>${recipientAddress.split(',')[0]}`))
+      .addTo(map.current);
+
+    // Add current location marker if available
+    if (currentCoords && trackingData.shipment.status !== 'delivered') {
+      const currentEl = document.createElement('div');
+      currentEl.className = 'custom-marker pulse-marker';
+      currentEl.style.width = '32px';
+      currentEl.style.height = '32px';
+      currentEl.style.backgroundColor = '#3b82f6';
+      currentEl.style.borderRadius = '50%';
+      currentEl.style.border = '3px solid white';
+      currentEl.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+      currentEl.style.animation = 'pulse 2s infinite';
+
+      new mapboxgl.Marker(currentEl)
+        .setLngLat(currentCoords)
+        .setPopup(new mapboxgl.Popup().setHTML(`<strong>Current Location</strong><br/>${currentLocation}`))
+        .addTo(map.current);
+    }
+
+    // Draw route line
+    map.current.on('load', () => {
+      if (!map.current) return;
+
+      const routeCoordinates = currentCoords && trackingData.shipment.status !== 'delivered'
+        ? [originCoords, currentCoords, destinationCoords]
+        : [originCoords, destinationCoords];
+
+      map.current.addSource('route', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: routeCoordinates
+          }
+        }
+      });
+
+      map.current.addLayer({
+        id: 'route',
+        type: 'line',
+        source: 'route',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#3b82f6',
+          'line-width': 3,
+          'line-dasharray': [2, 2]
+        }
+      });
+
+      // Fit map to show all markers
+      const bounds = new mapboxgl.LngLatBounds();
+      routeCoordinates.forEach(coord => bounds.extend(coord as [number, number]));
+      map.current.fitBounds(bounds, { padding: 50 });
+    });
+
+    return () => {
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    };
+  }, [trackingData]);
 
   const handleTrackSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -526,94 +698,7 @@ export default function TrackingPage() {
                 <div className="w-full">
                   {/* Map Container */}
                   <div className="relative w-full bg-gradient-to-br from-blue-50 to-cyan-50 overflow-hidden">
-                    <div className="relative bg-white shadow-inner w-full h-64 sm:h-80 md:h-96">
-                      {/* Map Background Pattern */}
-                      <div className="absolute inset-0 opacity-10">
-                        <svg width="100%" height="100%" className="text-muted-foreground">
-                          <defs>
-                            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-                            </pattern>
-                          </defs>
-                          <rect width="100%" height="100%" fill="url(#grid)" />
-                        </svg>
-                      </div>
-
-                      {/* Route Line - Responsive */}
-                      <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 1 }} viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet">
-                        <defs>
-                          <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#22c55e" />
-                            <stop offset="50%" stopColor="#3b82f6" />
-                            <stop offset="100%" stopColor="#8b5cf6" />
-                          </linearGradient>
-                        </defs>
-                        <path
-                          d="M 80 150 Q 200 100 300 120 Q 400 140 520 160"
-                          stroke="url(#routeGradient)"
-                          strokeWidth="4"
-                          fill="none"
-                          strokeDasharray="8,8"
-                          className="animate-pulse"
-                        >
-                          <animate attributeName="stroke-dashoffset" values="0;16;0" dur="2s" repeatCount="indefinite"/>
-                        </path>
-                      </svg>
-
-                      {/* Location Markers - Responsive positioning */}
-                      <div className="absolute inset-0" style={{ zIndex: 2 }}>
-                        {/* Origin Marker */}
-                        <div className="absolute" style={{ left: '13%', top: '48%', transform: 'translate(-50%, -50%)' }}>
-                          <div className="relative">
-                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-full flex items-center justify-center text-white shadow-lg ring-2 sm:ring-4 ring-green-100">
-                              <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full"></div>
-                            </div>
-                            <div className="absolute top-8 sm:top-10 left-1/2 transform -translate-x-1/2 bg-white rounded px-1 sm:px-2 py-1 text-xs font-medium shadow-md border whitespace-nowrap max-w-24 sm:max-w-none">
-                              <div className="font-semibold text-green-700 text-xs">Origin</div>
-                              <div className="text-muted-foreground text-xs truncate">
-                                {trackingData.shipment.senderAddress?.split(',')[0] || 'Origin Location'}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Current Location Marker (if available) */}
-                        {trackingData.shipment.currentLocation && trackingData.shipment.status !== 'delivered' && (
-                          <div className="absolute" style={{ left: '50%', top: '38%', transform: 'translate(-50%, -50%)' }}>
-                            <div className="relative">
-                              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg ring-2 sm:ring-4 ring-blue-100 animate-pulse">
-                                <Truck className="w-3 h-3 sm:w-4 sm:h-4" />
-                              </div>
-                              <div className="absolute top-8 sm:top-10 left-1/2 transform -translate-x-1/2 bg-white rounded px-1 sm:px-2 py-1 text-xs font-medium shadow-md border whitespace-nowrap max-w-24 sm:max-w-none">
-                                <div className="font-semibold text-blue-700 text-xs">Current</div>
-                                <div className="text-muted-foreground text-xs truncate">{trackingData.shipment.currentLocation}</div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Destination Marker */}
-                        <div className="absolute" style={{ left: '87%', top: '52%', transform: 'translate(-50%, -50%)' }}>
-                          <div className="relative">
-                            <div className={`w-6 h-6 sm:w-8 sm:h-8 ${trackingData.shipment.status === 'delivered' ? 'bg-green-500' : 'bg-purple-500'} rounded-full flex items-center justify-center text-white shadow-lg ring-2 sm:ring-4 ${trackingData.shipment.status === 'delivered' ? 'ring-green-100' : 'ring-purple-100'}`}>
-                              {trackingData.shipment.status === 'delivered' ? (
-                                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-                              ) : (
-                                <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
-                              )}
-                            </div>
-                            <div className="absolute top-8 sm:top-10 left-1/2 transform -translate-x-1/2 bg-white rounded px-1 sm:px-2 py-1 text-xs font-medium shadow-md border whitespace-nowrap max-w-24 sm:max-w-none">
-                              <div className={`font-semibold text-xs ${trackingData.shipment.status === 'delivered' ? 'text-green-700' : 'text-purple-700'}`}>
-                                {trackingData.shipment.status === 'delivered' ? 'Delivered' : 'Destination'}
-                              </div>
-                              <div className="text-muted-foreground text-xs truncate">
-                                {trackingData.shipment.recipientAddress?.split(',')[0] || 'Destination'}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <div ref={mapContainer} className="relative bg-white shadow-inner w-full h-64 sm:h-80 md:h-96" />
 
                     {/* Route Summary */}
                     <div className="p-4 sm:p-6">
