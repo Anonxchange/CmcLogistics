@@ -37,8 +37,8 @@ export default function Footer() {
       links: [
         { name: 'Help Center', href: '/help' },
         { name: 'Track Shipment', href: '#track' },
-        { name: 'Contact Us', href: '/contact' },
         { name: 'Get Quote', href: '/quote' },
+        { name: 'Car Purchase', href: '/car-purchase' },
         { name: 'Cookie Policy', href: '/cookie-policy' },
         { name: 'Terms of Service', href: '/terms-conditions' }
       ]
@@ -61,7 +61,7 @@ export default function Footer() {
             <h2 className="text-2xl font-bold text-foreground mb-2">Trusted by Industry Leaders</h2>
             <p className="text-muted-foreground">Join thousands of companies that rely on CMC Logistics for their logistics needs</p>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center justify-items-center">
             {trustedPartners.map((partner) => (
               <div key={partner.name} className="flex items-center justify-center h-16 w-32 grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100">
@@ -73,7 +73,7 @@ export default function Footer() {
               </div>
             ))}
           </div>
-          
+
           <div className="text-center mt-8">
             <p className="text-sm text-muted-foreground">
               Serving 16,000+ satisfied customers worldwide across 160+ countries
