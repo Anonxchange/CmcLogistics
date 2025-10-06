@@ -85,7 +85,7 @@ export default function Contact() {
       icon: Phone,
       title: "Phone Support",
       description: "Speak directly with our logistics experts",
-      contact: "+1 (555) 123-4567",
+      contact: "+1 (815) 257-1522",
       hours: "24/7 Available"
     },
     {
