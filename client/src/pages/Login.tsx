@@ -197,27 +197,6 @@ export default function Login() {
                 </a>
               </div>
             )}
-
-            <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-              <h4 className="font-semibold text-sm mb-2">Demo Account:</h4>
-              <div className="text-sm text-muted-foreground space-y-1">
-                <p><strong>Email:</strong> demo@cmclogistics.com</p>
-                <p><strong>Password:</strong> demo123</p>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="mt-2 w-full"
-                onClick={() => {
-                  setEmail('demo@cmclogistics.com');
-                  setPassword('demo123');
-                  setIsSignUp(false);
-                }}
-                data-testid="button-use-demo-credentials"
-              >
-                Use Demo Credentials
-              </Button>
-            </div>
           </CardContent>
         </Card>
       </div>
