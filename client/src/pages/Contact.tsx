@@ -6,8 +6,80 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { MapPin, Phone, Mail, Clock, Globe, Headphones } from 'lucide-react';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
 export default function Contact() {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [company, setCompany] = useState('');
+  const [serviceType, setServiceType] = useState('');
+  const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!firstName || !lastName || !email || !message) {
+      toast({
+        title: "Missing Fields",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const emailContent = `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+        <p><strong>Company:</strong> ${company || 'Not provided'}</p>
+        <p><strong>Service Type:</strong> ${serviceType || 'Not specified'}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message.replace(/\n/g, '<br>')}</p>
+      `;
+
+      const { error } = await supabase.functions.invoke('send-email', {
+        body: {
+          to: 'support@cmcautoslogistics.com',
+          subject: `New Contact Form: ${firstName} ${lastName} - ${serviceType || 'General Inquiry'}`,
+          html: emailContent,
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Message Sent!",
+        description: "We'll get back to you within 24 hours.",
+      });
+
+      setFirstName('');
+      setLastName('');
+      setEmail('');
+      setPhone('');
+      setCompany('');
+      setServiceType('');
+      setMessage('');
+    } catch (error) {
+      console.error('Contact form error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try emailing us directly at support@cmcautoslogistics.com",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   const contactMethods = [
     {
       icon: Phone,
@@ -20,7 +92,7 @@ export default function Contact() {
       icon: Mail,
       title: "Email Support",
       description: "Send us your inquiries and we'll respond quickly",
-      contact: "contact@cmclogistics.com",
+      contact: "support@cmcautoslogistics.com",
       hours: "Response within 2 hours"
     },
     {
@@ -126,27 +198,67 @@ export default function Contact() {
                   Fill out the form and we'll get back to you within 24 hours.
                 </p>
               </div>
-              <div className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-4">
-                  <Input placeholder="First Name" />
-                  <Input placeholder="Last Name" />
+                  <Input 
+                    placeholder="First Name *" 
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                  />
+                  <Input 
+                    placeholder="Last Name *" 
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                  />
                 </div>
-                <Input placeholder="Email Address" type="email" />
-                <Input placeholder="Phone Number" type="tel" />
-                <Input placeholder="Company Name" />
-                <select className="w-full p-3 border border-input rounded-md bg-background">
-                  <option>Select Service Type</option>
-                  <option>Air Freight</option>
-                  <option>Sea Freight</option>
-                  <option>Road Transportation</option>
-                  <option>Warehousing</option>
-                  <option>Other</option>
+                <Input 
+                  placeholder="Email Address *" 
+                  type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                <Input 
+                  placeholder="Phone Number" 
+                  type="tel" 
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+                <Input 
+                  placeholder="Company Name" 
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                />
+                <select 
+                  className="w-full p-3 border border-input rounded-md bg-background"
+                  value={serviceType}
+                  onChange={(e) => setServiceType(e.target.value)}
+                >
+                  <option value="">Select Service Type</option>
+                  <option value="Air Freight">Air Freight</option>
+                  <option value="Sea Freight">Sea Freight</option>
+                  <option value="Road Transportation">Road Transportation</option>
+                  <option value="Warehousing">Warehousing</option>
+                  <option value="Other">Other</option>
                 </select>
-                <Textarea placeholder="Tell us about your shipping needs..." rows={6} />
-                <Button size="lg" className="w-full">
-                  Send Message
+                <Textarea 
+                  placeholder="Tell us about your shipping needs... *" 
+                  rows={6} 
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  required
+                />
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
                 </Button>
-              </div>
+              </form>
             </div>
             <div className="space-y-8">
               <div>
