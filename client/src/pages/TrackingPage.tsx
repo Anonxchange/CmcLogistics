@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Package, MapPin, Clock, CheckCircle, Truck, Calendar, Mail, Phone, ChevronDown, ChevronUp, AlertCircle, Plane, Ship } from 'lucide-react';
+import { Search, Package, MapPin, Clock, CheckCircle, Truck, Calendar, Mail, Phone, ChevronDown, ChevronUp, AlertCircle, Plane, Ship, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -11,6 +11,7 @@ import { format, parseISO, isValid } from 'date-fns';
 import { supabase } from '@/lib/supabase';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import PrintInvoiceModal from '@/components/PrintInvoiceModal';
 
 // Mapbox access token
 const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiY21jbG9naXN0aWNzIiwiYSI6ImNtZ2R0eW42YzFrNzQybHM3eDFlNjdoaXgifQ.3RMOjZq_jNHwnZcLlzDDvg';
@@ -242,6 +243,7 @@ export default function TrackingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const { toast } = useToast();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -790,7 +792,7 @@ export default function TrackingPage() {
                           }`}>
                             <StepIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                             {isCompleted && (
-                              <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-600 rounded-full flex items-center justify-center">
+                              <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-3 bg-green-600 rounded-full flex items-center justify-center">
                                 <CheckCircle className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
                               </div>
                             )}
@@ -1122,33 +1124,13 @@ export default function TrackingPage() {
                     </CardDescription>
                   </div>
                   <Button 
-                    onClick={() => {
-                      // Ensure print receipt container is visible
-                      const printContainer = document.getElementById('print-receipt-container');
-                      if (printContainer) {
-                        printContainer.style.display = 'block';
-                      }
-                      
-                      // Small delay to ensure styles are applied
-                      setTimeout(() => {
-                        window.print();
-                        
-                        // Hide print container after printing
-                        setTimeout(() => {
-                          if (printContainer) {
-                            printContainer.style.display = 'none';
-                          }
-                        }, 100);
-                      }, 100);
-                    }} 
+                    onClick={() => setIsPrintModalOpen(true)} 
                     variant="outline" 
                     size="sm"
                     className="no-print"
                   >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a1 1 0 001-1v-4a1 1 0 00-1-1H9a1 1 0 00-1 1v4a1 1 0 001 1zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    Print Receipt
+                    <Printer className="w-4 h-4 mr-2" />
+                    Print Invoice
                   </Button>
                 </div>
               </CardHeader>
@@ -1260,7 +1242,7 @@ export default function TrackingPage() {
             {/* Print Invoice Section - Hidden on screen, shown when printing */}
             <div id="print-receipt-container" style={{ display: 'none' }}>
               <div className="print-content" style={{ padding: '30px', fontFamily: 'Arial, sans-serif', fontSize: '11pt', lineHeight: '1.5', color: '#000', backgroundColor: '#fff' }}>
-                
+
                 {/* Header with Tracking Number */}
                 <div style={{ textAlign: 'center', marginBottom: '20px', position: 'relative' }}>
                   <div style={{ fontSize: '8pt', color: '#999', letterSpacing: '2px', marginBottom: '10px' }}>
@@ -1565,6 +1547,15 @@ export default function TrackingPage() {
       </main>
 
       <Footer />
+
+      {/* Print Invoice Modal */}
+      {trackingData?.shipment && (
+        <PrintInvoiceModal
+          isOpen={isPrintModalOpen}
+          onClose={() => setIsPrintModalOpen(false)}
+          shipment={trackingData.shipment}
+        />
+      )}
     </div>
   );
 }
