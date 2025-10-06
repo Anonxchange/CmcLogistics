@@ -112,7 +112,7 @@ const getHtmlTemplate = (title: string, content: string, shipment: any, customSt
               <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">Need help? Contact our support team</p>
               <p style="margin: 0 0 15px 0;">
                 <a href="mailto:support@cmclogistics.com" style="color: #3b82f6; text-decoration: none; font-weight: 600;">support@cmclogistics.com</a> | 
-                <a href="tel:+1234567890" style="color: #3b82f6; text-decoration: none; font-weight: 600;">+1 (234) 567-890</a>
+                <a href="tel:+1 (815) 257-1522" style="color: #3b82f6; text-decoration: none; font-weight: 600;">+1 (815) 257-1522</a>
               </p>
               <p style="margin: 0; color: #9ca3af; font-size: 12px;">&copy; ${new Date().getFullYear()} CMC Logistics. All rights reserved.</p>
             </td>
