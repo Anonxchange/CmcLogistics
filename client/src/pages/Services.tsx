@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plane, Ship, Truck, Warehouse, Package, Shield, ArrowRight, CheckCircle } from 'lucide-react';
+import { Link } from 'wouter';
 
 // Import service images
 import airFreightImage from '@assets/generated_images/Air_freight_cargo_loading_10ab2b90.png';
@@ -213,22 +214,26 @@ export default function Services() {
             Request a quote or speak with our logistics experts.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              variant="secondary"
-              className="bg-white text-primary hover:bg-gray-100"
-              data-testid="button-get-quote"
-            >
-              Get Quote
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              className="border-white text-white hover:bg-white hover:text-primary"
-              data-testid="button-contact-expert"
-            >
-              Contact Expert
-            </Button>
+            <Link href="/quote">
+              <Button 
+                size="lg" 
+                variant="secondary"
+                className="bg-white text-primary hover:bg-gray-100 w-full sm:w-auto"
+                data-testid="button-get-quote"
+              >
+                Get Quote
+              </Button>
+            </Link>
+            <Link href="/contact">
+              <Button 
+                size="lg" 
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-primary w-full sm:w-auto"
+                data-testid="button-contact-expert"
+              >
+                Contact Expert
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
