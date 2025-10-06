@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Package, MapPin, Clock, CheckCircle, Truck, Calendar, Mail, Phone, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import { Search, Package, MapPin, Clock, CheckCircle, Truck, Calendar, Mail, Phone, ChevronDown, ChevronUp, AlertCircle, Plane, Ship } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -563,115 +563,90 @@ export default function TrackingPage() {
                   </h3>
 
                   {/* Progress Steps */}
-                  <div className="relative">
-                    {/* Progress Line */}
-                    <div className="absolute top-6 left-6 right-6 h-0.5 bg-border"></div>
-                    <div 
-                      className="absolute top-6 left-6 h-0.5 bg-gradient-to-r from-primary via-blue-500 to-green-500 transition-all duration-1000 ease-in-out"
-                      style={{
-                        width: `${(() => {
-                          const status = trackingData.shipment.status;
-                          if (status === 'pending') return '16.66%';
-                          if (status === 'picked_up') return '33.33%';
-                          if (status === 'in_transit') return '50%';
-                          if (status === 'held_by_customs') return '66.66%';
-                          if (status === 'out_for_delivery') return '83.33%';
-                          if (status === 'delivered') return '100%';
-                          return '0%';
-                        })()}`
-                      }}
-                    ></div>
-                    {/* Progress shimmer effect */}
-                    <div 
-                      className="absolute top-6 left-6 h-0.5 bg-gradient-to-r from-transparent via-white/30 to-transparent transition-all duration-1000 ease-in-out animate-pulse"
-                      style={{
-                        width: `${(() => {
-                          const status = trackingData.shipment.status;
-                          if (status === 'pending') return '16.66%';
-                          if (status === 'picked_up') return '33.33%';
-                          if (status === 'in_transit') return '50%';
-                          if (status === 'held_by_customs') return '66.66%';
-                          if (status === 'out_for_delivery') return '83.33%';
-                          if (status === 'delivered') return '100%';
-                          return '0%';
-                        })()}`
-                      }}
-                    ></div>
+                  <div className="relative flex flex-wrap justify-between gap-2 sm:gap-0">
+                    {[
+                      { status: 'pending', label: 'Order\nReceived', icon: Clock },
+                      { status: 'picked_up', label: 'Package\nPicked Up', icon: Package },
+                      { status: 'in_transit', label: 'In\nTransit', icon: Truck },
+                      { status: 'held_by_customs', label: 'Customs\nProcessing', icon: AlertCircle },
+                      { status: 'out_for_delivery', label: 'Out for\nDelivery', icon: MapPin },
+                      { status: 'delivered', label: 'Delivered', icon: CheckCircle }
+                    ].map((step, index) => {
+                      // Use service-specific icon for in_transit status
+                      const getProgressIcon = (status: string) => {
+                        if (status === 'in_transit') {
+                          const serviceType = trackingData.shipment.serviceType;
+                          if (serviceType === 'air') return Plane;
+                          if (serviceType === 'sea') return Ship;
+                          if (serviceType === 'road') return Truck;
+                          return Truck;
+                        }
+                        return step.icon;
+                      };
+                      
+                      const StepIcon = getProgressIcon(step.status);
+                      const currentStatus = trackingData.shipment.status;
+                      const isActive = currentStatus === step.status;
+                      const isCompleted = (() => {
+                        const statuses = ['pending', 'picked_up', 'in_transit', 'held_by_customs', 'out_for_delivery', 'delivered'];
+                        const currentIndex = statuses.indexOf(currentStatus);
+                        const stepIndex = statuses.indexOf(step.status);
+                        return currentIndex > stepIndex;
+                      })();
+                      const isPending = (() => {
+                        const statuses = ['pending', 'picked_up', 'in_transit', 'held_by_customs', 'out_for_delivery', 'delivered'];
+                        const currentIndex = statuses.indexOf(currentStatus);
+                        const stepIndex = statuses.indexOf(step.status);
+                        return currentIndex < stepIndex;
+                      })();
 
-                    {/* Progress Steps */}
-                    <div className="relative flex flex-wrap justify-between gap-2 sm:gap-0">
-                      {[
-                        { status: 'pending', label: 'Order\nReceived', icon: Clock },
-                        { status: 'picked_up', label: 'Package\nPicked Up', icon: Package },
-                        { status: 'in_transit', label: 'In\nTransit', icon: Truck },
-                        { status: 'held_by_customs', label: 'Customs\nProcessing', icon: AlertCircle },
-                        { status: 'out_for_delivery', label: 'Out for\nDelivery', icon: MapPin },
-                        { status: 'delivered', label: 'Delivered', icon: CheckCircle }
-                      ].map((step, index) => {
-                        const StepIcon = step.icon;
-                        const currentStatus = trackingData.shipment.status;
-                        const isActive = currentStatus === step.status;
-                        const isCompleted = (() => {
-                          const statuses = ['pending', 'picked_up', 'in_transit', 'held_by_customs', 'out_for_delivery', 'delivered'];
-                          const currentIndex = statuses.indexOf(currentStatus);
-                          const stepIndex = statuses.indexOf(step.status);
-                          return currentIndex > stepIndex;
-                        })();
-                        const isPending = (() => {
-                          const statuses = ['pending', 'picked_up', 'in_transit', 'held_by_customs', 'out_for_delivery', 'delivered'];
-                          const currentIndex = statuses.indexOf(currentStatus);
-                          const stepIndex = statuses.indexOf(step.status);
-                          return currentIndex < stepIndex;
-                        })();
-
-                        return (
-                          <div key={step.status} className={`flex flex-col items-center space-y-2 ${
-                            step.status === 'held_by_customs' && isActive ? 'scale-105' : ''
+                      return (
+                        <div key={step.status} className={`flex flex-col items-center space-y-2 ${
+                          step.status === 'held_by_customs' && isActive ? 'scale-105' : ''
+                        }`}>
+                          {/* Step Circle */}
+                          <div className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                            isCompleted 
+                              ? 'bg-green-500 border-green-500 text-white' 
+                              : isActive 
+                                ? step.status === 'held_by_customs'
+                                  ? 'bg-amber-600 border-amber-600 text-white ring-4 ring-amber-600/20 shadow-lg'
+                                  : 'bg-primary border-primary text-primary-foreground ring-4 ring-primary/20'
+                                : isPending
+                                  ? 'bg-muted border-border text-muted-foreground'
+                                  : 'bg-muted border-border text-muted-foreground'
                           }`}>
-                            {/* Step Circle */}
-                            <div className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
-                              isCompleted 
-                                ? 'bg-green-500 border-green-500 text-white' 
-                                : isActive 
-                                  ? step.status === 'held_by_customs'
-                                    ? 'bg-amber-600 border-amber-600 text-white ring-4 ring-amber-600/20 shadow-lg'
-                                    : 'bg-primary border-primary text-primary-foreground ring-4 ring-primary/20'
-                                  : isPending
-                                    ? 'bg-muted border-border text-muted-foreground'
-                                    : 'bg-muted border-border text-muted-foreground'
-                            }`}>
-                              <StepIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                              {isCompleted && (
-                                <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-600 rounded-full flex items-center justify-center">
-                                  <CheckCircle className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
-                                </div>
-                              )}
-                              {step.status === 'held_by_customs' && isActive && (
-                                <div className="absolute -top-2 -right-2 w-2 h-2 bg-amber-400 rounded-full animate-ping"></div>
-                              )}
-                            </div>
-
-                            {/* Step Label */}
-                            <div className="text-center">
-                              <p className={`text-xs font-medium whitespace-pre-line ${
-                                isActive 
-                                  ? step.status === 'held_by_customs' 
-                                    ? 'text-amber-600 font-semibold' 
-                                    : 'text-primary' 
-                                  : isCompleted 
-                                    ? 'text-green-600' 
-                                    : 'text-muted-foreground'
-                              }`}>
-                                {step.label}
-                              </p>
-                              {step.status === 'held_by_customs' && isActive && (
-                                <p className="text-xs text-amber-600 font-medium mt-1">Clearance</p>
-                              )}
-                            </div>
+                            <StepIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                            {isCompleted && (
+                              <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-600 rounded-full flex items-center justify-center">
+                                <CheckCircle className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
+                              </div>
+                            )}
+                            {step.status === 'held_by_customs' && isActive && (
+                              <div className="absolute -top-2 -right-2 w-2 h-2 bg-amber-400 rounded-full animate-ping"></div>
+                            )}
                           </div>
-                        );
-                      })}
-                    </div>
+
+                          {/* Step Label */}
+                          <div className="text-center">
+                            <p className={`text-xs font-medium whitespace-pre-line ${
+                              isActive 
+                                ? step.status === 'held_by_customs' 
+                                  ? 'text-amber-600 font-semibold' 
+                                  : 'text-primary' 
+                                : isCompleted 
+                                  ? 'text-green-600' 
+                                  : 'text-muted-foreground'
+                            }`}>
+                              {step.label}
+                            </p>
+                            {step.status === 'held_by_customs' && isActive && (
+                              <p className="text-xs text-amber-600 font-medium mt-1">Clearance</p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </CardContent>
@@ -785,15 +760,35 @@ export default function TrackingPage() {
                         { status: 'pending', title: 'Order Created', description: 'Your shipping order has been created and is being processed', defaultTime: '2024-01-15 09:00 AM' },
                         { status: 'picked_up', title: 'Package Picked Up', description: 'Your package has been collected from the sender', defaultTime: '2024-01-15 02:30 PM' },
                         { status: 'in_transit', title: 'In Transit', description: 'Package is on its way to the destination', defaultTime: '2024-01-16 10:15 AM' },
-                        { status: 'held_by_customs', title: 'Held by Customs', description: 'Package is being processed by customs officials for inspection', defaultTime: '2024-01-16 06:30 PM' },
+                        { status: 'held_by_customs', title: 'Customs Processing', description: 'Package is being processed by customs officials for inspection', defaultTime: '2024-01-16 06:30 PM' },
                         { status: 'out_for_delivery', title: 'Out for Delivery', description: 'Package is out for delivery to the final destination', defaultTime: '2024-01-17 08:45 AM' },
                         { status: 'delivered', title: 'Delivered', description: 'Package has been successfully delivered', defaultTime: '2024-01-17 03:20 PM' }
                       ];
 
+                      // Map status to icon based on service type for in_transit
+                      const getSpecificIcon = (status: string) => {
+                        if (status === 'in_transit') {
+                          const serviceType = trackingData.shipment.serviceType;
+                          if (serviceType === 'air') return Plane;
+                          if (serviceType === 'sea') return Ship;
+                          if (serviceType === 'road') return Truck;
+                          return Truck; // default to truck
+                        }
+
+                        switch (status) {
+                          case 'pending': return Clock;
+                          case 'picked_up': return Package;
+                          case 'held_by_customs': return AlertCircle;
+                          case 'out_for_delivery': return MapPin;
+                          case 'delivered': return CheckCircle;
+                          default: return Package;
+                        }
+                      };
+
                       const currentStatusIndex = completeProcess.findIndex(step => step.status === trackingData.shipment.status);
 
                       return completeProcess.map((step, index) => {
-                        const StatusIcon = getStatusIcon(step.status);
+                        const StatusIcon = getSpecificIcon(step.status);
                         const isCompleted = index <= currentStatusIndex;
                         const isActive = index === currentStatusIndex;
                         const isPending = index > currentStatusIndex;
@@ -812,7 +807,7 @@ export default function TrackingPage() {
                                 ? 'bg-white border-primary shadow-lg' 
                                 : isPending 
                                   ? 'bg-muted border-border' 
-                                  : 'bg-white border-primary shadow-lg'
+                                  : 'bg-white border-border shadow-lg'
                             } ${isActive ? 'ring-4 ring-primary/20 scale-110' : ''}`}>
                               <StatusIcon className={`w-6 h-6 ${isCompleted ? 'text-primary' : isActive ? 'text-primary' : 'text-muted-foreground'}`} />
                             </div>
