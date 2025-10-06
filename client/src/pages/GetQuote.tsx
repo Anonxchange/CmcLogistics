@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -6,8 +7,124 @@ import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/c
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Calculator, Clock, Shield, Truck, Plane, Ship } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
 export default function GetQuote() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    companyName: '',
+    serviceType: 'air_freight',
+    originCountry: '',
+    destinationCountry: '',
+    packageWeight: '',
+    packageDimensions: '',
+    estimatedValue: '',
+    shippingDate: '',
+    additionalInfo: ''
+  });
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await supabase
+        .from('quotes')
+        .insert({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          company_name: formData.companyName || null,
+          service_type: formData.serviceType,
+          origin_country: formData.originCountry,
+          destination_country: formData.destinationCountry,
+          package_weight: formData.packageWeight,
+          package_dimensions: formData.packageDimensions || null,
+          estimated_value: formData.estimatedValue || null,
+          shipping_date: formData.shippingDate || null,
+          additional_info: formData.additionalInfo || null,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const emailContent = `
+New Shipping Quote Request
+
+Customer Information:
+- Name: ${formData.firstName} ${formData.lastName}
+- Email: ${formData.email}
+- Phone: ${formData.phone}
+${formData.companyName ? `- Company: ${formData.companyName}` : ''}
+
+Service Details:
+- Service Type: ${formData.serviceType.replace('_', ' ').toUpperCase()}
+- Origin: ${formData.originCountry}
+- Destination: ${formData.destinationCountry}
+
+Package Information:
+- Weight: ${formData.packageWeight} lbs
+${formData.packageDimensions ? `- Dimensions: ${formData.packageDimensions}` : ''}
+${formData.estimatedValue ? `- Estimated Value: $${formData.estimatedValue}` : ''}
+${formData.shippingDate ? `- Shipping Date: ${formData.shippingDate}` : ''}
+
+${formData.additionalInfo ? `Additional Information:\n${formData.additionalInfo}` : ''}
+      `.trim();
+
+      await supabase.functions.invoke('send-email', {
+        body: {
+          to: 'support@cmcautologistics.com',
+          subject: `New Shipping Quote Request - ${formData.firstName} ${formData.lastName}`,
+          text: emailContent,
+          html: emailContent.replace(/\n/g, '<br>')
+        }
+      });
+
+      toast({
+        title: "Quote Request Submitted",
+        description: "We'll send you a detailed quote within 2 hours during business hours.",
+      });
+
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        companyName: '',
+        serviceType: 'air_freight',
+        originCountry: '',
+        destinationCountry: '',
+        packageWeight: '',
+        packageDimensions: '',
+        estimatedValue: '',
+        shippingDate: '',
+        additionalInfo: ''
+      });
+    } catch (error) {
+      console.error('Error submitting quote request:', error);
+      toast({
+        title: "Submission Failed",
+        description: "Please try again or contact support.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const features = [
     {
       icon: Calculator,
@@ -27,9 +144,9 @@ export default function GetQuote() {
   ];
 
   const services = [
-    { icon: Plane, name: "Air Freight", description: "Fast international shipping" },
-    { icon: Ship, name: "Sea Freight", description: "Cost-effective ocean shipping" },
-    { icon: Truck, name: "Ground Transportation", description: "Domestic road shipping" }
+    { icon: Plane, name: "Air Freight", value: "air_freight", description: "Fast international shipping" },
+    { icon: Ship, name: "Sea Freight", value: "sea_freight", description: "Cost-effective ocean shipping" },
+    { icon: Truck, name: "Ground Transportation", value: "ground", description: "Domestic road shipping" }
   ];
 
   return (
@@ -81,16 +198,43 @@ export default function GetQuote() {
                 </CardDescription>
               </div>
 
-              <form className="space-y-8">
+              <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Contact Information */}
                 <div>
                   <h3 className="text-xl font-semibold text-foreground mb-4">Contact Information</h3>
                   <div className="grid md:grid-cols-2 gap-4">
-                    <Input placeholder="First Name *" required />
-                    <Input placeholder="Last Name *" required />
-                    <Input placeholder="Email Address *" type="email" required />
-                    <Input placeholder="Phone Number *" type="tel" required />
-                    <Input placeholder="Company Name" className="md:col-span-2" />
+                    <Input 
+                      placeholder="First Name *" 
+                      value={formData.firstName}
+                      onChange={(e) => handleInputChange('firstName', e.target.value)}
+                      required 
+                    />
+                    <Input 
+                      placeholder="Last Name *"
+                      value={formData.lastName}
+                      onChange={(e) => handleInputChange('lastName', e.target.value)}
+                      required 
+                    />
+                    <Input 
+                      placeholder="Email Address *" 
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      required 
+                    />
+                    <Input 
+                      placeholder="Phone Number *" 
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      required 
+                    />
+                    <Input 
+                      placeholder="Company Name" 
+                      className="md:col-span-2"
+                      value={formData.companyName}
+                      onChange={(e) => handleInputChange('companyName', e.target.value)}
+                    />
                   </div>
                 </div>
 
@@ -101,7 +245,15 @@ export default function GetQuote() {
                     {services.map((service, index) => {
                       const IconComponent = service.icon;
                       return (
-                        <Card key={index} className="cursor-pointer hover:bg-primary/5 transition-colors border-2 hover:border-primary">
+                        <Card 
+                          key={index} 
+                          className={`cursor-pointer transition-colors border-2 ${
+                            formData.serviceType === service.value 
+                              ? 'border-primary bg-primary/5' 
+                              : 'hover:bg-primary/5 hover:border-primary'
+                          }`}
+                          onClick={() => handleInputChange('serviceType', service.value)}
+                        >
                           <CardContent className="p-4 text-center space-y-3">
                             <IconComponent className="w-8 h-8 text-primary mx-auto" />
                             <div>
@@ -121,26 +273,22 @@ export default function GetQuote() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">Origin Country *</label>
-                      <select className="w-full p-3 border border-input rounded-md bg-background" required>
-                        <option value="">Select origin country</option>
-                        <option value="US">United States</option>
-                        <option value="CA">Canada</option>
-                        <option value="MX">Mexico</option>
-                        <option value="other">Other</option>
-                      </select>
+                      <Input 
+                        placeholder="Enter origin country"
+                        value={formData.originCountry}
+                        onChange={(e) => handleInputChange('originCountry', e.target.value)}
+                        required
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">Destination Country *</label>
-                      <select className="w-full p-3 border border-input rounded-md bg-background" required>
-                        <option value="">Select destination country</option>
-                        <option value="US">United States</option>
-                        <option value="CA">Canada</option>
-                        <option value="MX">Mexico</option>
-                        <option value="other">Other</option>
-                      </select>
+                      <Input 
+                        placeholder="Enter destination country"
+                        value={formData.destinationCountry}
+                        onChange={(e) => handleInputChange('destinationCountry', e.target.value)}
+                        required
+                      />
                     </div>
-                    <Input placeholder="Origin City/Port *" required />
-                    <Input placeholder="Destination City/Port *" required />
                   </div>
                 </div>
 
@@ -148,71 +296,48 @@ export default function GetQuote() {
                 <div>
                   <h3 className="text-xl font-semibold text-foreground mb-4">Package Information</h3>
                   <div className="grid md:grid-cols-2 gap-4">
-                    <Input placeholder="Number of Packages *" type="number" required />
-                    <Input placeholder="Total Weight (lbs) *" type="number" required />
-                    <Input placeholder="Dimensions (L x W x H inches)" />
-                    <select className="p-3 border border-input rounded-md bg-background">
-                      <option value="">Package Type</option>
-                      <option value="boxes">Boxes</option>
-                      <option value="pallets">Pallets</option>
-                      <option value="documents">Documents</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Special Requirements */}
-                <div>
-                  <h3 className="text-xl font-semibold text-foreground mb-4">Special Requirements</h3>
-                  <div className="space-y-4">
-                    <div className="flex flex-wrap gap-4">
-                      <label className="flex items-center space-x-2">
-                        <input type="checkbox" className="rounded border-input" />
-                        <span className="text-sm">Temperature Controlled</span>
-                      </label>
-                      <label className="flex items-center space-x-2">
-                        <input type="checkbox" className="rounded border-input" />
-                        <span className="text-sm">Fragile Items</span>
-                      </label>
-                      <label className="flex items-center space-x-2">
-                        <input type="checkbox" className="rounded border-input" />
-                        <span className="text-sm">Hazardous Materials</span>
-                      </label>
-                      <label className="flex items-center space-x-2">
-                        <input type="checkbox" className="rounded border-input" />
-                        <span className="text-sm">Insurance Required</span>
-                      </label>
-                    </div>
-                    <Textarea 
-                      placeholder="Additional requirements or comments..." 
-                      rows={4}
+                    <Input 
+                      placeholder="Total Weight (lbs) *" 
+                      type="number"
+                      value={formData.packageWeight}
+                      onChange={(e) => handleInputChange('packageWeight', e.target.value)}
+                      required 
                     />
+                    <Input 
+                      placeholder="Dimensions (L x W x H inches)"
+                      value={formData.packageDimensions}
+                      onChange={(e) => handleInputChange('packageDimensions', e.target.value)}
+                    />
+                    <Input 
+                      placeholder="Estimated Value ($)"
+                      type="number"
+                      value={formData.estimatedValue}
+                      onChange={(e) => handleInputChange('estimatedValue', e.target.value)}
+                    />
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">Preferred Shipping Date</label>
+                      <Input 
+                        type="date"
+                        value={formData.shippingDate}
+                        onChange={(e) => handleInputChange('shippingDate', e.target.value)}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                {/* Timeline */}
+                {/* Additional Info */}
                 <div>
-                  <h3 className="text-xl font-semibold text-foreground mb-4">Timeline</h3>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">Pickup Date</label>
-                      <Input type="date" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">Delivery Urgency</label>
-                      <select className="w-full p-3 border border-input rounded-md bg-background">
-                        <option value="">Select urgency</option>
-                        <option value="standard">Standard (5-7 days)</option>
-                        <option value="express">Express (2-3 days)</option>
-                        <option value="overnight">Overnight</option>
-                        <option value="flexible">Flexible timing</option>
-                      </select>
-                    </div>
-                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-4">Additional Information</h3>
+                  <Textarea 
+                    placeholder="Special requirements, handling instructions, or any other details..." 
+                    rows={4}
+                    value={formData.additionalInfo}
+                    onChange={(e) => handleInputChange('additionalInfo', e.target.value)}
+                  />
                 </div>
 
-                <Button type="submit" size="lg" className="w-full">
-                  Request Quote
+                <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? 'Submitting...' : 'Request Quote'}
                 </Button>
               </form>
             </CardContent>
