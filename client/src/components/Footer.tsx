@@ -104,7 +104,7 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-blue-100">
                 <Mail className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm">contact@cmclogistics.com</span>
+                <span className="text-sm">support@cmcautoslogistics.com</span>
               </div>
               <div className="flex items-center gap-3 text-blue-100">
                 <Phone className="w-4 h-4 flex-shrink-0" />
