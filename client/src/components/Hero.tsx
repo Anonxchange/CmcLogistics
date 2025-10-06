@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, ArrowRight, Plane } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { Link } from 'wouter';
 import cargoShipImage from '@assets/generated_images/Cargo_ship_logistics_scene_d218b66d.png';
 import airFreightImage from '@assets/generated_images/Air_freight_logistics_scene_a980c507.png';
 import warehouseImage from '@assets/generated_images/Warehouse_logistics_scene_dfb1c093.png';
@@ -109,23 +110,27 @@ export default function Hero() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-2xl group"
-                data-testid="button-learn-more"
-              >
-                Learn More
-                <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-2xl"
-                data-testid="button-contact-us"
-              >
-                Contact Us
-              </Button>
+              <Link href="/about">
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-2xl group w-full sm:w-auto"
+                  data-testid="button-learn-more"
+                >
+                  Learn More
+                  <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+              <Link href="/contact">
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-2xl w-full sm:w-auto"
+                  data-testid="button-contact-us"
+                >
+                  Contact Us
+                </Button>
+              </Link>
             </div>
           </div>
 
