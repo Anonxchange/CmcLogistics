@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Package, ArrowRight, Phone, Mail } from 'lucide-react';
+import { Link } from 'wouter';
 
 export default function ReadyToShip() {
   return (
@@ -25,21 +26,25 @@ export default function ReadyToShip() {
                   Get your free quote today and experience the difference of professional shipping services.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button 
-                    size="lg" 
-                    variant="secondary"
-                    className="bg-white text-primary hover:bg-white/90 font-semibold px-8"
-                  >
-                    Get Free Quote
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                  <Button 
-                    size="lg" 
-                    variant="outline"
-                    className="border-white text-white hover:bg-white hover:text-primary font-semibold px-8"
-                  >
-                    Track Shipment
-                  </Button>
+                  <Link href="/quote">
+                    <Button 
+                      size="lg" 
+                      variant="secondary"
+                      className="bg-white text-primary hover:bg-white/90 font-semibold px-8 w-full sm:w-auto"
+                    >
+                      Get Free Quote
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </Link>
+                  <Link href="/track">
+                    <Button 
+                      size="lg" 
+                      variant="outline"
+                      className="border-white text-white hover:bg-white hover:text-primary font-semibold px-8 w-full sm:w-auto"
+                    >
+                      Track Shipment
+                    </Button>
+                  </Link>
                 </div>
               </div>
               
