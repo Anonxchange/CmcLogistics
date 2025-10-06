@@ -12,6 +12,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Car, Shield, DollarSign, Truck, Clock, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Autoplay from 'embla-carousel-autoplay';
+import { supabase } from '@/lib/supabase';
 
 export default function CarPurchase() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,7 +42,61 @@ export default function CarPurchase() {
     setIsSubmitting(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { data, error } = await supabase
+        .from('car_purchases')
+        .insert({
+          full_name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          car_make: formData.carMake,
+          car_model: formData.carModel,
+          year: formData.year,
+          condition: formData.condition,
+          budget: formData.budget,
+          preferred_color: formData.preferredColor || null,
+          transmission: formData.transmission || null,
+          fuel_type: formData.fuelType || null,
+          delivery_location: formData.deliveryLocation,
+          additional_requirements: formData.additionalRequirements || null,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const emailContent = `
+New Car Purchase Request
+
+Customer Information:
+- Name: ${formData.fullName}
+- Email: ${formData.email}
+- Phone: ${formData.phone}
+
+Vehicle Details:
+- Make: ${formData.carMake}
+- Model: ${formData.carModel}
+- Year: ${formData.year}
+- Condition: ${formData.condition}
+- Budget: ${formData.budget}
+${formData.preferredColor ? `- Preferred Color: ${formData.preferredColor}` : ''}
+${formData.transmission ? `- Transmission: ${formData.transmission}` : ''}
+${formData.fuelType ? `- Fuel Type: ${formData.fuelType}` : ''}
+
+Delivery Location:
+${formData.deliveryLocation}
+
+${formData.additionalRequirements ? `Additional Requirements:\n${formData.additionalRequirements}` : ''}
+      `.trim();
+
+      await supabase.functions.invoke('send-email', {
+        body: {
+          to: 'support@cmcautologistics.com',
+          subject: `New Car Purchase Request - ${formData.carMake} ${formData.carModel}`,
+          text: emailContent,
+          html: emailContent.replace(/\n/g, '<br>')
+        }
+      });
 
       toast({
         title: "Quote Request Submitted",
@@ -155,7 +210,7 @@ export default function CarPurchase() {
               <CarouselItem>
                 <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
                   <img 
-                    src="/cars/IMG_0910.jpeg" 
+                    src="/cars/modern_luxury_car_de_10b558e8.jpg" 
                     alt="Latest luxury vehicles" 
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   />
@@ -171,7 +226,7 @@ export default function CarPurchase() {
               <CarouselItem>
                 <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
                   <img 
-                    src="/cars/IMG_0911.jpeg" 
+                    src="/cars/modern_luxury_car_de_44c608d4.jpg" 
                     alt="Modern sports cars" 
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   />
@@ -187,7 +242,7 @@ export default function CarPurchase() {
               <CarouselItem>
                 <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
                   <img 
-                    src="/cars/IMG_0909.png" 
+                    src="/cars/modern_luxury_car_de_75e7aab2.jpg" 
                     alt="Executive sedans" 
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   />
@@ -203,7 +258,7 @@ export default function CarPurchase() {
               <CarouselItem>
                 <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
                   <img 
-                    src="/cars/IMG_0913.jpeg" 
+                    src="/cars/modern_luxury_car_de_7952a385.jpg" 
                     alt="Electric and hybrid vehicles" 
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   />
@@ -219,7 +274,7 @@ export default function CarPurchase() {
               <CarouselItem>
                 <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
                   <img 
-                    src="/cars/IMG_0914.jpeg" 
+                    src="/cars/modern_luxury_car_de_e67fefe2.jpg" 
                     alt="SUVs and family vehicles" 
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   />
