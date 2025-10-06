@@ -17,35 +17,179 @@ const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiY21jbG9naXN0aWNzIiwiYSI6ImNtZ2R0eW42YzFr
 
 // Add print styles
 const printStyles = `
-  @keyframes pulse {
-    0%, 100% {
-      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-    }
-    50% {
-      box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
-    }
-  }
-
   @media print {
-    .print\:hidden { display: none !important; }
-    .bg-primary { background-color: #000 !important; }
-    .text-primary-foreground { color: #fff !important; }
-    body { background: white !important; }
-    .shadow-lg, .shadow-md { box-shadow: none !important; }
-    .border { border: 1px solid #000 !important; }
-    .bg-gradient-to-br { background: white !important; }
-    .bg-muted { background: #f8f9fa !important; }
-    * { 
-      -webkit-print-color-adjust: exact !important; 
-      color-adjust: exact !important; 
+    @page {
+      size: A4;
+      margin: 15mm;
     }
-    @page { 
-      margin: 1in; 
-      size: A4; 
+
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
     }
-    .card { 
-      page-break-inside: avoid; 
-      margin-bottom: 1rem; 
+
+    body * {
+      visibility: hidden;
+    }
+
+    #print-receipt-container,
+    #print-receipt-container * {
+      visibility: visible;
+    }
+
+    #print-receipt-container {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      max-width: 210mm;
+      background: white !important;
+      padding: 0;
+      margin: 0;
+    }
+
+    .no-print,
+    header,
+    footer,
+    nav,
+    .print\\:hidden {
+      display: none !important;
+    }
+
+    .print-content {
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      font-size: 12pt;
+      color: #000;
+      background: white;
+    }
+
+    .print-header {
+      border-bottom: 3px solid #000;
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .print-logo {
+      font-size: 24pt;
+      font-weight: bold;
+      color: #000;
+    }
+
+    .print-header-info {
+      text-align: right;
+      font-size: 10pt;
+    }
+
+    .print-section {
+      margin-bottom: 25px;
+      page-break-inside: avoid;
+    }
+
+    .print-title {
+      font-size: 16pt;
+      font-weight: bold;
+      margin: 20px 0 15px 0;
+      color: #000;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 8px;
+    }
+
+    .print-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+
+    .print-table th,
+    .print-table td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+      font-size: 11pt;
+    }
+
+    .print-table th {
+      background-color: #f5f5f5 !important;
+      font-weight: bold;
+    }
+
+    .print-status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border: 2px solid #000;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 10pt;
+    }
+
+    .print-timeline {
+      margin-top: 20px;
+    }
+
+    .print-timeline-item {
+      border-left: 3px solid #000;
+      padding-left: 20px;
+      margin-bottom: 20px;
+      position: relative;
+      page-break-inside: avoid;
+    }
+
+    .print-timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 5px;
+      width: 12px;
+      height: 12px;
+      background: #000;
+      border-radius: 50%;
+    }
+
+    .print-timeline-title {
+      font-weight: bold;
+      font-size: 11pt;
+      margin-bottom: 5px;
+    }
+
+    .print-timeline-location {
+      font-size: 10pt;
+      color: #333;
+      margin-bottom: 3px;
+    }
+
+    .print-timeline-date {
+      font-size: 9pt;
+      color: #666;
+    }
+
+    .print-footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px solid #ddd;
+      font-size: 9pt;
+      text-align: center;
+      color: #666;
+      page-break-inside: avoid;
+    }
+
+    .print-footer-line {
+      margin: 5px 0;
+    }
+
+    .print-qr-placeholder {
+      width: 80px;
+      height: 80px;
+      border: 2px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8pt;
+      margin: 10px auto;
     }
   }
 `;
@@ -583,7 +727,7 @@ export default function TrackingPage() {
                         }
                         return step.icon;
                       };
-                      
+
                       const StepIcon = getProgressIcon(step.status);
                       const currentStatus = trackingData.shipment.status;
                       const isActive = currentStatus === step.status;
@@ -951,39 +1095,19 @@ export default function TrackingPage() {
                   </div>
                   <Button 
                     onClick={() => {
-                      // Add a small delay to ensure DOM is ready
+                      // Small delay to ensure styles are applied
                       setTimeout(() => {
-                        try {
-                          if (window.print) {
-                            window.print();
-                          } else {
-                            throw new Error('Print not supported');
-                          }
-                        } catch (error) {
-                          console.error('Print failed:', error);
-                          toast({
-                            title: "Print failed",
-                            description: "Print function not available. Please use Ctrl+P or Cmd+P to print.",
-                            variant: "destructive",
-                          });
-
-                          // Fallback: Try to open print dialog manually
-                          try {
-                            document.execCommand('print');
-                          } catch (fallbackError) {
-                            console.error('Fallback print also failed:', fallbackError);
-                          }
-                        }
+                        window.print();
                       }, 100);
                     }} 
                     variant="outline" 
                     size="sm"
-                    className="print:hidden"
+                    className="no-print"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a1 1 0 001-1v-4a1 1 0 00-1-1H9a1 1 0 00-1 1v4a1 1 0 001 1zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                     </svg>
-                    Print
+                    Print Receipt
                   </Button>
                 </div>
               </CardHeader>
@@ -1091,6 +1215,160 @@ export default function TrackingPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Print Receipt Section - Hidden on screen, shown when printing */}
+            <div id="print-receipt-container" className="hidden">
+              <div className="print-content">
+                <div className="print-header">
+                  <div className="print-logo">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM18.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/>
+                      </svg>
+                      <span>CMC Logistics</span>
+                    </div>
+                  </div>
+                  <div className="print-header-info">
+                    <div style={{ fontWeight: 'bold', fontSize: '12pt' }}>Tracking Receipt</div>
+                    <div>Date: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                    <div>Time: {new Date().toLocaleTimeString('en-US')}</div>
+                  </div>
+                </div>
+
+                <div className="print-section">
+                  <div className="print-title">Shipment Information</div>
+                  <table className="print-table">
+                    <tbody>
+                      <tr>
+                        <th style={{ width: '35%' }}>Tracking Number</th>
+                        <td style={{ fontWeight: 'bold', fontFamily: 'monospace' }}>{trackingData.shipment.trackingNumber}</td>
+                      </tr>
+                      <tr>
+                        <th>Status</th>
+                        <td>
+                          <span className="print-status-badge">
+                            {trackingData.shipment.status.replace('_', ' ').toUpperCase()}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Service Type</th>
+                        <td>{trackingData.shipment.serviceType ? trackingData.shipment.serviceType.charAt(0).toUpperCase() + trackingData.shipment.serviceType.slice(1) : 'Standard'} Freight</td>
+                      </tr>
+                      {trackingData.shipment.packageWeight && (
+                        <tr>
+                          <th>Package Weight</th>
+                          <td>{trackingData.shipment.packageWeight} kg</td>
+                        </tr>
+                      )}
+                      {trackingData.shipment.estimatedDelivery && (
+                        <tr>
+                          <th>Estimated Delivery</th>
+                          <td>{formatSafeDate(trackingData.shipment.estimatedDelivery, 'EEEE, MMMM dd, yyyy')}</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="print-section">
+                  <div className="print-title">Sender Information</div>
+                  <table className="print-table">
+                    <tbody>
+                      <tr>
+                        <th style={{ width: '35%' }}>Name</th>
+                        <td>{trackingData.shipment.senderName}</td>
+                      </tr>
+                      <tr>
+                        <th>Address</th>
+                        <td>{trackingData.shipment.senderAddress}</td>
+                      </tr>
+                      {trackingData.shipment.senderPhone && (
+                        <tr>
+                          <th>Phone</th>
+                          <td>{trackingData.shipment.senderPhone}</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="print-section">
+                  <div className="print-title">Recipient Information</div>
+                  <table className="print-table">
+                    <tbody>
+                      <tr>
+                        <th style={{ width: '35%' }}>Name</th>
+                        <td>{trackingData.shipment.recipientName}</td>
+                      </tr>
+                      <tr>
+                        <th>Address</th>
+                        <td>{trackingData.shipment.recipientAddress}</td>
+                      </tr>
+                      {trackingData.shipment.recipientPhone && (
+                        <tr>
+                          <th>Phone</th>
+                          <td>{trackingData.shipment.recipientPhone}</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {trackingData.trackingUpdates && trackingData.trackingUpdates.length > 0 && (
+                  <div className="print-section">
+                    <div className="print-title">Tracking History</div>
+                    <div className="print-timeline">
+                      {trackingData.trackingUpdates
+                        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                        .map((update, index) => (
+                          <div key={index} className="print-timeline-item">
+                            <div className="print-timeline-title">
+                              {update.status.replace('_', ' ').toUpperCase()}
+                            </div>
+                            <div className="print-timeline-location">
+                              📍 {update.location}
+                            </div>
+                            <div className="print-timeline-date">
+                              {formatSafeDate(update.timestamp, 'EEEE, MMMM dd, yyyy')} at {(() => {
+                                try {
+                                  const date = new Date(update.timestamp);
+                                  return isValid(date) ? format(date, 'h:mm a') : '--:--';
+                                } catch {
+                                  return '--:--';
+                                }
+                              })()}
+                            </div>
+                            {update.description && (
+                              <div style={{ fontSize: '10pt', marginTop: '8px', lineHeight: '1.4' }}>
+                                {update.description}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="print-footer">
+                  <div className="print-footer-line" style={{ fontWeight: 'bold', fontSize: '10pt' }}>
+                    CMC Logistics - Global Logistics & Shipment Tracking
+                  </div>
+                  <div className="print-footer-line">
+                    📧 support@cmcautoslogistics.com | ☎ +1 (555) 123-4567
+                  </div>
+                  <div className="print-footer-line" style={{ marginTop: '15px' }}>
+                    Global Headquarters, New York | Serving 160+ Countries Worldwide
+                  </div>
+                  <div className="print-footer-line" style={{ marginTop: '10px', fontStyle: 'italic' }}>
+                    This is a computer-generated receipt. No signature required.
+                  </div>
+                  <div className="print-footer-line" style={{ marginTop: '5px' }}>
+                    For inquiries or support, please contact our 24/7 customer service team.
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
