@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/c
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Package, Truck, Plane, Ship, HelpCircle, FileText, MessageCircle } from 'lucide-react';
+import { Link } from 'wouter';
 
 export default function HelpCenter() {
   const categories = [
@@ -58,10 +59,10 @@ export default function HelpCenter() {
   ];
 
   const quickActions = [
-    { title: "Track a Shipment", description: "Enter tracking number", icon: Package },
-    { title: "Get Quote", description: "Calculate shipping costs", icon: FileText },
-    { title: "Contact Support", description: "Chat with an agent", icon: MessageCircle },
-    { title: "Download Forms", description: "Shipping documents", icon: FileText }
+    { title: "Track a Shipment", description: "Enter tracking number", icon: Package, link: "/track" },
+    { title: "Get Quote", description: "Calculate shipping costs", icon: FileText, link: "/quote" },
+    { title: "Contact Support", description: "Chat with an agent", icon: MessageCircle, link: "/contact" },
+    { title: "Download Forms", description: "Shipping documents", icon: FileText, link: "/services" }
   ];
 
   return (
@@ -104,17 +105,19 @@ export default function HelpCenter() {
             {quickActions.map((action, index) => {
               const IconComponent = action.icon;
               return (
-                <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardContent className="p-6 text-center space-y-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                      <IconComponent className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg mb-1">{action.title}</CardTitle>
-                      <CardDescription>{action.description}</CardDescription>
-                    </div>
-                  </CardContent>
-                </Card>
+                <Link key={index} href={action.link}>
+                  <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+                    <CardContent className="p-6 text-center space-y-4">
+                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                        <IconComponent className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg mb-1">{action.title}</CardTitle>
+                        <CardDescription>{action.description}</CardDescription>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               );
             })}
           </div>
