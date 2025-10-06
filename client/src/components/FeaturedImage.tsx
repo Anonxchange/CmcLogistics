@@ -1,4 +1,4 @@
-import featuredImage from '@assets/generated_images/IMG_0919.jpeg';
+import featuredImage from '@assets/generated_images/IMG_0919.png';
 
 export default function FeaturedImage() {
   return (
