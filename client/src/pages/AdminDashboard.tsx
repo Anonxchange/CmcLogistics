@@ -36,6 +36,8 @@ interface AdminDashboardProps {
 export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps) {
   const [stats, setStats] = useState<any>(null);
   const [shipments, setShipments] = useState<any[]>([]);
+  const [carPurchases, setCarPurchases] = useState<any[]>([]);
+  const [quotes, setQuotes] = useState<any[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -59,6 +61,22 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
 
       if (shipmentsError) throw shipmentsError;
 
+      // Fetch car purchases
+      const { data: carPurchasesData, error: carPurchasesError } = await supabase
+        .from('car_purchases')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (carPurchasesError) console.error('Error fetching car purchases:', carPurchasesError);
+
+      // Fetch quotes
+      const { data: quotesData, error: quotesError } = await supabase
+        .from('quotes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (quotesError) console.error('Error fetching quotes:', quotesError);
+
       // Calculate stats from shipments data
       const totalShipments = shipmentsData?.length || 0;
       const deliveredShipments = shipmentsData?.filter(s => s.status === 'delivered').length || 0;
@@ -69,11 +87,15 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
         totalShipments,
         deliveredShipments,
         inTransitShipments,
-        pendingShipments
+        pendingShipments,
+        totalCarPurchases: carPurchasesData?.length || 0,
+        totalQuotes: quotesData?.length || 0
       };
         
       setStats(statsData);
       setShipments(shipmentsData || []);
+      setCarPurchases(carPurchasesData || []);
+      setQuotes(quotesData || []);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast({
@@ -139,9 +161,9 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'shipments', label: 'Shipments', icon: Package },
-    { id: 'tracking', label: 'Tracking', icon: MapPin },
+    { id: 'car-quotes', label: 'Car Purchases', icon: Car },
+    { id: 'shipping-quotes', label: 'Shipping Quotes', icon: TrendingUp },
     { id: 'emails', label: 'Emails', icon: Mail },
-    { id: 'car-quotes', label: 'Car Quotes', icon: Car },
   ];
 
   const NavigationMenu = ({ mobile = false }: { mobile?: boolean }) => (
@@ -359,22 +381,142 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
 
           {/* Car Quotes View */}
           {activeView === 'car-quotes' && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Car Purchase Quotes</CardTitle>
-                <CardDescription>
-                  View and manage car purchase quote requests
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <Car className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">
-                    Car purchase quotes are automatically sent to support@cmcautoslogistics.com
-                  </p>
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold">Car Purchase Requests</h2>
+                <p className="text-muted-foreground">View and manage car purchase quote requests</p>
+              </div>
+              
+              {carPurchases.length === 0 ? (
+                <Card>
+                  <CardContent className="p-8">
+                    <div className="text-center py-8">
+                      <Car className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">
+                        No car purchase requests yet
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-4">
+                  {carPurchases.map((purchase) => (
+                    <Card key={purchase.id}>
+                      <CardContent className="p-6">
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div>
+                            <h3 className="font-semibold text-lg mb-2">
+                              {purchase.car_make} {purchase.car_model} ({purchase.year})
+                            </h3>
+                            <div className="space-y-1 text-sm">
+                              <p><span className="font-medium">Customer:</span> {purchase.full_name}</p>
+                              <p><span className="font-medium">Email:</span> {purchase.email}</p>
+                              <p><span className="font-medium">Phone:</span> {purchase.phone}</p>
+                              <p><span className="font-medium">Condition:</span> {purchase.condition}</p>
+                              <p><span className="font-medium">Budget:</span> {purchase.budget}</p>
+                            </div>
+                          </div>
+                          <div className="space-y-1 text-sm">
+                            <p><span className="font-medium">Delivery Location:</span> {purchase.delivery_location}</p>
+                            {purchase.preferred_color && (
+                              <p><span className="font-medium">Color:</span> {purchase.preferred_color}</p>
+                            )}
+                            {purchase.transmission && (
+                              <p><span className="font-medium">Transmission:</span> {purchase.transmission}</p>
+                            )}
+                            {purchase.fuel_type && (
+                              <p><span className="font-medium">Fuel Type:</span> {purchase.fuel_type}</p>
+                            )}
+                            {purchase.additional_requirements && (
+                              <p><span className="font-medium">Requirements:</span> {purchase.additional_requirements}</p>
+                            )}
+                            <p className="pt-2">
+                              <Badge variant={purchase.status === 'pending' ? 'default' : 'secondary'}>
+                                {purchase.status}
+                              </Badge>
+                            </p>
+                            <p className="text-xs text-muted-foreground pt-2">
+                              Submitted: {new Date(purchase.created_at).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-              </CardContent>
-            </Card>
+              )}
+            </div>
+          )}
+
+          {/* Shipping Quotes View */}
+          {activeView === 'shipping-quotes' && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold">Shipping Quote Requests</h2>
+                <p className="text-muted-foreground">View and manage shipping quote requests</p>
+              </div>
+              
+              {quotes.length === 0 ? (
+                <Card>
+                  <CardContent className="p-8">
+                    <div className="text-center py-8">
+                      <TrendingUp className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">
+                        No quote requests yet
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-4">
+                  {quotes.map((quote) => (
+                    <Card key={quote.id}>
+                      <CardContent className="p-6">
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div>
+                            <h3 className="font-semibold text-lg mb-2">
+                              {quote.first_name} {quote.last_name}
+                            </h3>
+                            <div className="space-y-1 text-sm">
+                              <p><span className="font-medium">Email:</span> {quote.email}</p>
+                              <p><span className="font-medium">Phone:</span> {quote.phone}</p>
+                              {quote.company_name && (
+                                <p><span className="font-medium">Company:</span> {quote.company_name}</p>
+                              )}
+                              <p><span className="font-medium">Service:</span> {quote.service_type.replace('_', ' ').toUpperCase()}</p>
+                            </div>
+                          </div>
+                          <div className="space-y-1 text-sm">
+                            <p><span className="font-medium">Route:</span> {quote.origin_country} → {quote.destination_country}</p>
+                            <p><span className="font-medium">Weight:</span> {quote.package_weight} lbs</p>
+                            {quote.package_dimensions && (
+                              <p><span className="font-medium">Dimensions:</span> {quote.package_dimensions}</p>
+                            )}
+                            {quote.estimated_value && (
+                              <p><span className="font-medium">Value:</span> ${quote.estimated_value}</p>
+                            )}
+                            {quote.shipping_date && (
+                              <p><span className="font-medium">Date:</span> {new Date(quote.shipping_date).toLocaleDateString()}</p>
+                            )}
+                            {quote.additional_info && (
+                              <p><span className="font-medium">Notes:</span> {quote.additional_info}</p>
+                            )}
+                            <p className="pt-2">
+                              <Badge variant={quote.status === 'pending' ? 'default' : 'secondary'}>
+                                {quote.status}
+                              </Badge>
+                            </p>
+                            <p className="text-xs text-muted-foreground pt-2">
+                              Submitted: {new Date(quote.created_at).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </main>
       </div>
