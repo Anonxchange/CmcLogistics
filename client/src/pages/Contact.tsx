@@ -115,7 +115,7 @@ export default function Contact() {
     {
       city: "New York (Headquarters)",
       address: "123 Logistics Plaza, New York, NY 10001",
-      phone: "+1 (555) 123-4567",
+      phone: "+1 (815) 257-1522",
       email: "ny.office@cmclogistics.com"
     },
     {
