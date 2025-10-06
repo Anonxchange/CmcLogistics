@@ -15,17 +15,18 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 // Mapbox access token
 const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiY21jbG9naXN0aWNzIiwiYSI6ImNtZ2R0eW42YzFrNzQybHM3eDFlNjdoaXgifQ.3RMOjZq_jNHwnZcLlzDDvg';
 
-// Add print styles
+// Add print styles for professional invoice format - works on all devices
 const printStyles = `
   @media print {
     @page {
       size: A4;
-      margin: 15mm;
+      margin: 10mm 15mm;
     }
 
     html, body {
       height: auto;
       overflow: visible !important;
+      font-size: 10pt;
     }
 
     * {
@@ -48,7 +49,7 @@ const printStyles = `
       left: 0 !important;
       top: 0 !important;
       width: 100% !important;
-      max-width: 210mm !important;
+      max-width: 100% !important;
       background: white !important;
       padding: 0 !important;
       margin: 0 !important;
@@ -63,139 +64,160 @@ const printStyles = `
       display: none !important;
     }
 
-    .print-content {
-      padding: 20px;
+    .print-invoice {
+      padding: 30px;
       font-family: Arial, sans-serif;
-      font-size: 12pt;
-      color: #000;
-      background: white;
-    }
-
-    .print-header {
-      border-bottom: 3px solid #000;
-      padding-bottom: 15px;
-      margin-bottom: 25px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .print-logo {
-      font-size: 24pt;
-      font-weight: bold;
-      color: #000;
-    }
-
-    .print-header-info {
-      text-align: right;
-      font-size: 10pt;
-    }
-
-    .print-section {
-      margin-bottom: 25px;
-      page-break-inside: avoid;
-    }
-
-    .print-title {
-      font-size: 16pt;
-      font-weight: bold;
-      margin: 20px 0 15px 0;
-      color: #000;
-      border-bottom: 2px solid #e0e0e0;
-      padding-bottom: 8px;
-    }
-
-    .print-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 15px 0;
-    }
-
-    .print-table th,
-    .print-table td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
       font-size: 11pt;
+      line-height: 1.5;
+      color: #000;
+      background: #fff;
     }
 
-    .print-table th {
-      background-color: #f5f5f5 !important;
-      font-weight: bold;
-    }
-
-    .print-status-badge {
-      display: inline-block;
-      padding: 6px 12px;
-      border: 2px solid #000;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 10pt;
-    }
-
-    .print-timeline {
-      margin-top: 20px;
-    }
-
-    .print-timeline-item {
-      border-left: 3px solid #000;
-      padding-left: 20px;
+    .invoice-header {
+      text-align: center;
       margin-bottom: 20px;
       position: relative;
+    }
+
+    .invoice-watermark {
+      transform: rotate(-45deg);
+      position: absolute;
+      top: 20px;
+      right: 50px;
+      font-size: 60pt;
+      opacity: 0.08;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .invoice-company {
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #000;
+      padding-bottom: 15px;
+    }
+
+    .invoice-company-name {
+      font-size: 14pt;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .invoice-company-info {
+      font-size: 10pt;
+      line-height: 1.6;
+    }
+
+    .invoice-section {
+      margin-bottom: 20px;
       page-break-inside: avoid;
     }
 
-    .print-timeline-item::before {
-      content: '';
-      position: absolute;
-      left: -8px;
-      top: 5px;
-      width: 12px;
-      height: 12px;
-      background: #000;
-      border-radius: 50%;
+    .invoice-grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
     }
 
-    .print-timeline-title {
+    .invoice-grid-3col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+    }
+
+    .invoice-section-title {
       font-weight: bold;
       font-size: 11pt;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+
+    .invoice-details-box {
+      border: 2px solid #000;
+      padding: 15px;
+      background: #f9f9f9;
+      font-size: 9pt;
+    }
+
+    .invoice-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 10pt;
+    }
+
+    .invoice-table th,
+    .invoice-table td {
+      border: 1px solid #ccc;
+      padding: 12px;
+      text-align: left;
+      page-break-inside: avoid;
+    }
+
+    .invoice-table th {
+      background-color: #f0f0f0;
+      border-top: 2px solid #000;
+      border-bottom: 2px solid #000;
+      font-weight: bold;
+    }
+
+    .invoice-stamp-area {
+      border: 2px dashed #999;
+      padding: 20px;
+      text-align: center;
+      background: #fafafa;
+      border-radius: 8px;
+    }
+
+    .invoice-footer {
+      border-top: 3px double #000;
+      padding-top: 20px;
+      margin-top: 30px;
+    }
+
+    .invoice-footer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      text-align: center;
+      font-size: 12pt;
+    }
+
+    .invoice-cost-label {
+      color: #666;
+      font-size: 9pt;
       margin-bottom: 5px;
     }
 
-    .print-timeline-location {
-      font-size: 10pt;
-      color: #333;
-      margin-bottom: 3px;
+    .invoice-cost-value {
+      font-weight: bold;
+      font-size: 14pt;
+    }
+  }
+
+  @media print and (max-width: 600px) {
+    .print-invoice {
+      padding: 15px !important;
+      font-size: 9pt !important;
     }
 
-    .print-timeline-date {
-      font-size: 9pt;
-      color: #666;
+    .invoice-table {
+      font-size: 8pt !important;
     }
 
-    .print-footer {
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 2px solid #ddd;
-      font-size: 9pt;
-      text-align: center;
-      color: #666;
-      page-break-inside: avoid;
+    .invoice-table th,
+    .invoice-table td {
+      padding: 6px !important;
     }
 
-    .print-footer-line {
-      margin: 5px 0;
+    .invoice-grid-2col,
+    .invoice-grid-3col {
+      display: block !important;
     }
 
-    .print-qr-placeholder {
-      width: 80px;
-      height: 80px;
-      border: 2px solid #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 8pt;
-      margin: 10px auto;
+    .invoice-cost-value {
+      font-size: 12pt !important;
     }
   }
 `;
@@ -526,7 +548,7 @@ export default function TrackingPage() {
             ></div>
           ))}
         </div>
-        <style jsx>{`
+        <style>{`
           @keyframes fly-left {
             0% { transform: translateX(-200%) rotate(-45deg); opacity: 0; }
             10% { transform: translateX(0%) rotate(-45deg); opacity: 1; }
@@ -1235,157 +1257,185 @@ export default function TrackingPage() {
               </CardContent>
             </Card>
 
-            {/* Print Receipt Section - Hidden on screen, shown when printing */}
+            {/* Print Invoice Section - Hidden on screen, shown when printing */}
             <div id="print-receipt-container" style={{ display: 'none' }}>
-              <div className="print-content">
-                <div className="print-header">
-                  <div className="print-logo">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM18.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/>
-                      </svg>
-                      <span>CMC Logistics</span>
+              <div className="print-content" style={{ padding: '30px', fontFamily: 'Arial, sans-serif', fontSize: '11pt', lineHeight: '1.5', color: '#000', backgroundColor: '#fff' }}>
+                
+                {/* Header with Tracking Number */}
+                <div style={{ textAlign: 'center', marginBottom: '20px', position: 'relative' }}>
+                  <div style={{ fontSize: '8pt', color: '#999', letterSpacing: '2px', marginBottom: '10px' }}>
+                    <div style={{ transform: 'rotate(-45deg)', position: 'absolute', top: '20px', right: '50px', fontSize: '60pt', opacity: '0.08', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                      True Copy
                     </div>
                   </div>
-                  <div className="print-header-info">
-                    <div style={{ fontWeight: 'bold', fontSize: '12pt' }}>Tracking Receipt</div>
-                    <div>Date: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                    <div>Time: {new Date().toLocaleTimeString('en-US')}</div>
+                  <h2 style={{ margin: '0 0 5px 0', fontSize: '14pt', fontWeight: 'normal' }}>Tracking Number: <strong style={{ fontSize: '16pt' }}>{trackingData.shipment.trackingNumber}</strong></h2>
+                </div>
+
+                {/* Company Info Section */}
+                <div style={{ textAlign: 'center', marginBottom: '30px', borderBottom: '2px solid #000', paddingBottom: '15px' }}>
+                  <div style={{ fontSize: '14pt', fontWeight: 'bold', marginBottom: '8px' }}>
+                    CMC Logistics Company
+                  </div>
+                  <div style={{ fontSize: '10pt', lineHeight: '1.6' }}>
+                    <div>Address: Canada, USA, UK, Asia and Europe</div>
+                    <div>Email: support@chidimikecarlogistics.live</div>
+                    <div>Company Website: http://chidimikecarlogistics.live</div>
                   </div>
                 </div>
 
-                <div className="print-section">
-                  <div className="print-title">Shipment Information</div>
-                  <table className="print-table">
-                    <tbody>
-                      <tr>
-                        <th style={{ width: '35%' }}>Tracking Number</th>
-                        <td style={{ fontWeight: 'bold', fontFamily: 'monospace' }}>{trackingData.shipment.trackingNumber}</td>
-                      </tr>
-                      <tr>
-                        <th>Status</th>
-                        <td>
-                          <span className="print-status-badge">
-                            {trackingData.shipment.status.replace('_', ' ').toUpperCase()}
-                          </span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>Service Type</th>
-                        <td>{trackingData.shipment.serviceType ? trackingData.shipment.serviceType.charAt(0).toUpperCase() + trackingData.shipment.serviceType.slice(1) : 'Standard'} Freight</td>
-                      </tr>
-                      {trackingData.shipment.packageWeight && (
-                        <tr>
-                          <th>Package Weight</th>
-                          <td>{trackingData.shipment.packageWeight} kg</td>
-                        </tr>
-                      )}
-                      {trackingData.shipment.estimatedDelivery && (
-                        <tr>
-                          <th>Estimated Delivery</th>
-                          <td>{formatSafeDate(trackingData.shipment.estimatedDelivery, 'EEEE, MMMM dd, yyyy')}</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                {/* Sender and Recipient Section with Order Details */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 250px', gap: '20px', marginBottom: '20px' }}>
+                  {/* Left: Sender and Recipient */}
+                  <div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                      {/* FROM (SENDER) */}
+                      <div>
+                        <div style={{ fontWeight: 'bold', fontSize: '11pt', marginBottom: '10px', borderBottom: '1px solid #ccc', paddingBottom: '5px' }}>
+                          FROM (SENDER)
+                        </div>
+                        <div style={{ fontSize: '10pt', lineHeight: '1.7' }}>
+                          <div style={{ fontWeight: 'bold' }}>{trackingData.shipment.senderName}</div>
+                          <div>Address: {trackingData.shipment.senderAddress}</div>
+                          {trackingData.shipment.senderPhone && (
+                            <div>Phone: {trackingData.shipment.senderPhone}</div>
+                          )}
+                          <div style={{ marginTop: '8px' }}>Origin Office: {trackingData.shipment.senderAddress.split(',').slice(-2).join(',').trim()}</div>
+                        </div>
+                      </div>
 
-                <div className="print-section">
-                  <div className="print-title">Sender Information</div>
-                  <table className="print-table">
-                    <tbody>
-                      <tr>
-                        <th style={{ width: '35%' }}>Name</th>
-                        <td>{trackingData.shipment.senderName}</td>
-                      </tr>
-                      <tr>
-                        <th>Address</th>
-                        <td>{trackingData.shipment.senderAddress}</td>
-                      </tr>
-                      {trackingData.shipment.senderPhone && (
-                        <tr>
-                          <th>Phone</th>
-                          <td>{trackingData.shipment.senderPhone}</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="print-section">
-                  <div className="print-title">Recipient Information</div>
-                  <table className="print-table">
-                    <tbody>
-                      <tr>
-                        <th style={{ width: '35%' }}>Name</th>
-                        <td>{trackingData.shipment.recipientName}</td>
-                      </tr>
-                      <tr>
-                        <th>Address</th>
-                        <td>{trackingData.shipment.recipientAddress}</td>
-                      </tr>
-                      {trackingData.shipment.recipientPhone && (
-                        <tr>
-                          <th>Phone</th>
-                          <td>{trackingData.shipment.recipientPhone}</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-
-                {trackingData.trackingUpdates && trackingData.trackingUpdates.length > 0 && (
-                  <div className="print-section">
-                    <div className="print-title">Tracking History</div>
-                    <div className="print-timeline">
-                      {trackingData.trackingUpdates
-                        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-                        .map((update, index) => (
-                          <div key={index} className="print-timeline-item">
-                            <div className="print-timeline-title">
-                              {update.status.replace('_', ' ').toUpperCase()}
-                            </div>
-                            <div className="print-timeline-location">
-                              📍 {update.location}
-                            </div>
-                            <div className="print-timeline-date">
-                              {formatSafeDate(update.timestamp, 'EEEE, MMMM dd, yyyy')} at {(() => {
-                                try {
-                                  const date = new Date(update.timestamp);
-                                  return isValid(date) ? format(date, 'h:mm a') : '--:--';
-                                } catch {
-                                  return '--:--';
-                                }
-                              })()}
-                            </div>
-                            {update.description && (
-                              <div style={{ fontSize: '10pt', marginTop: '8px', lineHeight: '1.4' }}>
-                                {update.description}
-                              </div>
-                            )}
-                          </div>
-                        ))}
+                      {/* TO (CONSIGNEE) */}
+                      <div>
+                        <div style={{ fontWeight: 'bold', fontSize: '11pt', marginBottom: '10px', borderBottom: '1px solid #ccc', paddingBottom: '5px' }}>
+                          TO (CONSIGNEE)
+                        </div>
+                        <div style={{ fontSize: '10pt', lineHeight: '1.7' }}>
+                          <div style={{ fontWeight: 'bold' }}>{trackingData.shipment.recipientName}</div>
+                          {trackingData.shipment.recipientPhone && (
+                            <div>Phone: {trackingData.shipment.recipientPhone}</div>
+                          )}
+                          <div>Address: {trackingData.shipment.recipientAddress}</div>
+                          <div style={{ marginTop: '8px' }}>Destination Office: {trackingData.shipment.recipientAddress.split(',').slice(-2).join(',').trim()}</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                )}
 
-                <div className="print-footer">
-                  <div className="print-footer-line" style={{ fontWeight: 'bold', fontSize: '10pt' }}>
-                    CMC Logistics - Global Logistics & Shipment Tracking
-                  </div>
-                  <div className="print-footer-line">
-                    📧 support@cmcautoslogistics.com | ☎ +1 (555) 123-4567
-                  </div>
-                  <div className="print-footer-line" style={{ marginTop: '15px' }}>
-                    Global Headquarters, New York | Serving 160+ Countries Worldwide
-                  </div>
-                  <div className="print-footer-line" style={{ marginTop: '10px', fontStyle: 'italic' }}>
-                    This is a computer-generated receipt. No signature required.
-                  </div>
-                  <div className="print-footer-line" style={{ marginTop: '5px' }}>
-                    For inquiries or support, please contact our 24/7 customer service team.
+                  {/* Right: Order Details Box */}
+                  <div style={{ border: '2px solid #000', padding: '15px', backgroundColor: '#f9f9f9', fontSize: '9pt' }}>
+                    <div style={{ marginBottom: '8px' }}>
+                      <div style={{ color: '#666' }}>Order ID:</div>
+                      <div style={{ fontWeight: 'bold', fontSize: '10pt' }}>--</div>
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <div style={{ color: '#666' }}>Booking Mode:</div>
+                      <div style={{ fontWeight: 'bold' }}>To Pay</div>
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <div style={{ color: '#666' }}>Shipment Cost:</div>
+                      <div style={{ fontWeight: 'bold', fontSize: '11pt' }}>USD {trackingData.shipment.cost || '--'}</div>
+                    </div>
+                    <div>
+                      <div style={{ color: '#666' }}>Tracking Number:</div>
+                      <div style={{ fontWeight: 'bold', fontFamily: 'monospace', fontSize: '9pt' }}>{trackingData.shipment.trackingNumber}</div>
+                    </div>
                   </div>
                 </div>
+
+                {/* Shipment Details Table */}
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px', fontSize: '10pt' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f0f0f0', borderTop: '2px solid #000', borderBottom: '2px solid #000' }}>
+                      <th style={{ padding: '10px', textAlign: 'left', border: '1px solid #ccc', width: '60px' }}>Qty</th>
+                      <th style={{ padding: '10px', textAlign: 'left', border: '1px solid #ccc', width: '100px' }}>Product</th>
+                      <th style={{ padding: '10px', textAlign: 'left', border: '1px solid #ccc', width: '100px' }}>Status</th>
+                      <th style={{ padding: '10px', textAlign: 'left', border: '1px solid #ccc' }}>Description</th>
+                      <th style={{ padding: '10px', textAlign: 'right', border: '1px solid #ccc', width: '100px' }}>Shipping Cost</th>
+                      <th style={{ padding: '10px', textAlign: 'right', border: '1px solid #ccc', width: '100px' }}>Clearance Cost</th>
+                      <th style={{ padding: '10px', textAlign: 'right', border: '1px solid #ccc', width: '100px' }}>Total Cost</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style={{ padding: '12px', border: '1px solid #ccc', textAlign: 'center', verticalAlign: 'top' }}>1</td>
+                      <td style={{ padding: '12px', border: '1px solid #ccc', verticalAlign: 'top' }}>Parcel</td>
+                      <td style={{ padding: '12px', border: '1px solid #ccc', verticalAlign: 'top' }}>
+                        <span style={{ display: 'inline-block', padding: '4px 8px', backgroundColor: '#e3f2fd', border: '1px solid #2196f3', borderRadius: '4px', fontSize: '9pt', fontWeight: 'bold' }}>
+                          {trackingData.shipment.status.replace('_', ' ').toUpperCase()}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ccc', verticalAlign: 'top', fontSize: '9pt', lineHeight: '1.6' }}>
+                        <div><strong>Service:</strong> {trackingData.shipment.serviceType ? trackingData.shipment.serviceType.charAt(0).toUpperCase() + trackingData.shipment.serviceType.slice(1) : 'Standard'} Freight</div>
+                        {trackingData.shipment.packageWeight && (
+                          <div><strong>Weight:</strong> {trackingData.shipment.packageWeight} kg</div>
+                        )}
+                        {trackingData.shipment.estimatedDelivery && (
+                          <div><strong>Est. Delivery:</strong> {formatSafeDate(trackingData.shipment.estimatedDelivery, 'MMM dd, yyyy')}</div>
+                        )}
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ccc', textAlign: 'right', verticalAlign: 'top', fontWeight: 'bold' }}>
+                        USD {trackingData.shipment.cost || '--'}
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ccc', textAlign: 'right', verticalAlign: 'top' }}>
+                        USD --
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ccc', textAlign: 'right', verticalAlign: 'top', fontWeight: 'bold', fontSize: '11pt' }}>
+                        USD {trackingData.shipment.cost || '--'}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Payment Methods and Stamp Section */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '30px', borderTop: '1px solid #ddd', paddingTop: '20px' }}>
+                  {/* Payment Methods */}
+                  <div style={{ fontSize: '9pt' }}>
+                    <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Payment Methods:</div>
+                    <div style={{ lineHeight: '1.8', color: '#555' }}>
+                      For your convenience we have<br />
+                      CMC Logistics several<br />
+                      payment reliable, fast, secure.
+                    </div>
+                  </div>
+
+                  {/* Official Stamp */}
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontWeight: 'bold', fontSize: '9pt', marginBottom: '10px' }}>
+                      Official Stamp/{new Date().toDateString()}
+                    </div>
+                    <div style={{ width: '120px', height: '120px', border: '2px dashed #999', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', backgroundColor: '#fafafa' }}>
+                      <div style={{ fontSize: '8pt', color: '#999', textAlign: 'center' }}>
+                        OFFICIAL<br />STAMP<br />AREA
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stamp Duty */}
+                  <div style={{ fontSize: '9pt', textAlign: 'right' }}>
+                    <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Stamp Duty:</div>
+                    <div style={{ fontSize: '18pt', fontWeight: 'bold', marginTop: '15px', color: '#333' }}>
+                      Amount Due
+                    </div>
+                  </div>
+                </div>
+
+                {/* Cost Breakdown Footer */}
+                <div style={{ borderTop: '3px double #000', paddingTop: '20px', marginTop: '30px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', textAlign: 'center', fontSize: '12pt' }}>
+                    <div>
+                      <div style={{ color: '#666', fontSize: '9pt', marginBottom: '5px' }}>SHIPPING COST:</div>
+                      <div style={{ fontWeight: 'bold', fontSize: '14pt' }}>USD {trackingData.shipment.cost || '--'}</div>
+                    </div>
+                    <div>
+                      <div style={{ color: '#666', fontSize: '9pt', marginBottom: '5px' }}>CLEARANCE COST:</div>
+                      <div style={{ fontWeight: 'bold', fontSize: '14pt' }}>USD --</div>
+                    </div>
+                    <div>
+                      <div style={{ color: '#666', fontSize: '9pt', marginBottom: '5px' }}>TOTAL AMOUNT:</div>
+                      <div style={{ fontWeight: 'bold', fontSize: '14pt', color: '#000' }}>USD {trackingData.shipment.cost || '--'}</div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
