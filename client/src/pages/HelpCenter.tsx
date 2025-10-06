@@ -4,8 +4,10 @@ import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Package, Truck, Plane, Ship, HelpCircle, FileText, MessageCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Search, Package, Truck, Plane, Ship, HelpCircle, FileText, MessageCircle, Newspaper, Calendar, Clock } from 'lucide-react';
 import { Link } from 'wouter';
+import { newsArticles } from '@/data/newsArticles';
 
 export default function HelpCenter() {
   const categories = [
@@ -64,6 +66,28 @@ export default function HelpCenter() {
     { title: "Contact Support", description: "Chat with an agent", icon: MessageCircle, link: "/contact" },
     { title: "Download Forms", description: "Shipping documents", icon: FileText, link: "/services" }
   ];
+
+  const getCategoryColor = (category: string) => {
+    const colors: { [key: string]: string } = {
+      'Expansion': 'bg-blue-100 text-blue-800 border-blue-200',
+      'Technology': 'bg-purple-100 text-purple-800 border-purple-200',
+      'Certification': 'bg-green-100 text-green-800 border-green-200',
+      'Partnership': 'bg-orange-100 text-orange-800 border-orange-200',
+      'Sustainability': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      'Service': 'bg-indigo-100 text-indigo-800 border-indigo-200'
+    };
+    return colors[category] || 'bg-gray-100 text-gray-800 border-gray-200';
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const latestNews = newsArticles.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background">
@@ -151,6 +175,57 @@ export default function HelpCenter() {
                 </Card>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Latest News & Updates */}
+      <section className="py-16 bg-muted/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Newspaper className="w-6 h-6 text-primary" />
+              </div>
+              <h2 className="text-3xl font-bold text-foreground">Latest News & Updates</h2>
+            </div>
+            <Link href="/news-updates">
+              <Button variant="outline">View All News</Button>
+            </Link>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {latestNews.map((article) => (
+              <Link key={article.id} href={`/news/${article.slug}`}>
+                <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
+                  <img 
+                    src={article.image} 
+                    alt={article.title}
+                    className="w-full h-48 object-cover"
+                  />
+                  <CardContent className="p-6">
+                    <Badge className={`${getCategoryColor(article.category)} border text-xs mb-3`}>
+                      {article.category}
+                    </Badge>
+                    <h3 className="font-bold text-lg text-foreground mb-2 line-clamp-2 hover:text-primary transition-colors">
+                      {article.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      {article.excerpt}
+                    </p>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {formatDate(article.date)}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {article.readTime}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
