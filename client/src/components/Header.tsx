@@ -53,16 +53,20 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8 items-center">
-            {navigation.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
-                data-testid={`link-nav-${item.name.toLowerCase().replace(' ', '-')}`}
-              >
-                {item.name}
-              </a>
-            ))}
+            <a
+              href="/"
+              className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+              data-testid="link-nav-home"
+            >
+              Home
+            </a>
+            <a
+              href="/track"
+              className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+              data-testid="link-nav-track-shipment"
+            >
+              Track Shipment
+            </a>
             
             {/* Services Dropdown */}
             <div className="relative" ref={dropdownRef}>
@@ -91,6 +95,28 @@ export default function Header() {
                 </div>
               )}
             </div>
+            
+            <a
+              href="/car-purchase"
+              className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+              data-testid="link-nav-car-purchase"
+            >
+              Car Purchase
+            </a>
+            <a
+              href="/about"
+              className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+              data-testid="link-nav-about"
+            >
+              About
+            </a>
+            <a
+              href="/contact"
+              className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+              data-testid="link-nav-contact"
+            >
+              Contact
+            </a>
           </nav>
 
           {/* Search and CTA Section */}
@@ -172,17 +198,22 @@ export default function Header() {
                 </div>
               </div>
               
-              {navigation.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors duration-200"
-                  onClick={() => setIsMenuOpen(false)}
-                  data-testid={`link-mobile-${item.name.toLowerCase().replace(' ', '-')}`}
-                >
-                  {item.name}
-                </a>
-              ))}
+              <a
+                href="/"
+                className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors duration-200"
+                onClick={() => setIsMenuOpen(false)}
+                data-testid="link-mobile-home"
+              >
+                Home
+              </a>
+              <a
+                href="/track"
+                className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors duration-200"
+                onClick={() => setIsMenuOpen(false)}
+                data-testid="link-mobile-track-shipment"
+              >
+                Track Shipment
+              </a>
               
               {/* Mobile Services Dropdown */}
               <div className="px-3 py-2">
@@ -212,6 +243,32 @@ export default function Header() {
                   </div>
                 )}
               </div>
+              
+              <a
+                href="/car-purchase"
+                className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors duration-200"
+                onClick={() => setIsMenuOpen(false)}
+                data-testid="link-mobile-car-purchase"
+              >
+                Car Purchase
+              </a>
+              <a
+                href="/about"
+                className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors duration-200"
+                onClick={() => setIsMenuOpen(false)}
+                data-testid="link-mobile-about"
+              >
+                About
+              </a>
+              <a
+                href="/contact"
+                className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors duration-200"
+                onClick={() => setIsMenuOpen(false)}
+                data-testid="link-mobile-contact"
+              >
+                Contact
+              </a>
+              
               <div className="px-3 pt-2">
                 <a href="/quote" className="block">
                   <Button 
