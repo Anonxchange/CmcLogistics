@@ -5,82 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { ArrowLeft, Calendar, Clock, Truck, Globe, Award, Users, Newspaper, TrendingUp, Building } from 'lucide-react';
+import { Link } from 'wouter';
+import { newsArticles, getFeaturedArticles, getRegularArticles } from '@/data/newsArticles';
 
 export default function NewsUpdates() {
-  const newsArticles = [
-    {
-      id: 1,
-      title: 'CMC Logistics Expands Operations to 25 New Countries',
-      excerpt: 'We are excited to announce our expansion into 25 new markets across Africa, Asia, and South America, bringing our total coverage to 160+ countries worldwide.',
-      date: '2024-03-15',
-      category: 'Expansion',
-      icon: Globe,
-      featured: true,
-      image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&h=300&fit=crop',
-      author: 'Sarah Johnson, CEO',
-      readTime: '3 min read'
-    },
-    {
-      id: 2,
-      title: 'New AI-Powered Route Optimization System',
-      excerpt: 'Our latest technology upgrade includes machine learning algorithms that optimize delivery routes in real-time, reducing transit times by up to 30%.',
-      date: '2024-03-10',
-      category: 'Technology',
-      icon: Truck,
-      featured: true,
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=300&fit=crop',
-      author: 'Michael Chen, CTO',
-      readTime: '4 min read'
-    },
-    {
-      id: 3,
-      title: 'CMC Logistics Receives ISO 27001 Certification',
-      excerpt: 'We have achieved ISO 27001 certification for information security management, demonstrating our commitment to protecting customer data.',
-      date: '2024-03-05',
-      category: 'Certification',
-      icon: Award,
-      featured: false,
-      image: 'https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?w=400&h=200&fit=crop',
-      author: 'Security Team',
-      readTime: '2 min read'
-    },
-    {
-      id: 4,
-      title: 'Partnership with Major E-commerce Platforms',
-      excerpt: 'New integrations with leading e-commerce platforms make it easier than ever for online retailers to manage their shipping needs.',
-      date: '2024-02-28',
-      category: 'Partnership',
-      icon: Users,
-      featured: false,
-      image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=200&fit=crop',
-      author: 'Business Development',
-      readTime: '3 min read'
-    },
-    {
-      id: 5,
-      title: 'Sustainable Packaging Initiative Launch',
-      excerpt: 'Introducing our eco-friendly packaging solutions to reduce environmental impact while maintaining the highest protection standards.',
-      date: '2024-02-20',
-      category: 'Sustainability',
-      icon: Globe,
-      featured: false,
-      image: 'https://raw.githubusercontent.com/Anonxchange/Smartship/refs/heads/main/attached_assets/generated_images/IMG_0534.jpeg?w=400&h=200&fit=crop',
-      author: 'Environmental Team',
-      readTime: '2 min read'
-    },
-    {
-      id: 6,
-      title: '24/7 Customer Support Now Available',
-      excerpt: 'Our customer support team is now available around the clock to assist with tracking, claims, and general inquiries in multiple languages.',
-      date: '2024-02-15',
-      category: 'Service',
-      icon: Users,
-      featured: false,
-      image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=400&h=200&fit=crop',
-      author: 'Customer Success',
-      readTime: '2 min read'
-    }
-  ];
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -102,24 +30,27 @@ export default function NewsUpdates() {
     return colors[category] || 'bg-gray-100 text-gray-800 border-gray-200';
   };
 
-  const featuredNews = newsArticles.filter(article => article.featured);
-  const regularNews = newsArticles.filter(article => !article.featured);
+  const featuredNews = getFeaturedArticles();
+  const regularNews = getRegularArticles();
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary to-primary/80 text-white py-20">
+      <section className="bg-gradient-to-br from-primary to-primary/80 text-white py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-6">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="p-3 bg-white/10 rounded-lg">
-                <Newspaper className="w-8 h-8" />
+          <div className="text-center space-y-4 sm:space-y-6">
+            <div className="flex items-center justify-center gap-3 mb-2 sm:mb-4">
+              <div className="p-2 sm:p-3 bg-white/10 rounded-lg">
+                <Newspaper className="w-6 h-6 sm:w-8 sm:h-8" />
               </div>
             </div>
-            <h1 className="text-4xl lg:text-5xl font-bold">News & Updates</h1>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+            <div className="space-y-2">
+              <p className="text-sm sm:text-base text-blue-100 font-medium">CMC Logistics News</p>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold">News & Updates</h1>
+            </div>
+            <p className="text-base sm:text-lg lg:text-xl text-blue-100 max-w-3xl mx-auto px-4">
               Stay informed about the latest developments, expansions, and innovations at CMC Logistics. 
               We're constantly working to improve our services and expand our global reach.
             </p>
@@ -127,26 +58,23 @@ export default function NewsUpdates() {
         </div>
       </section>
 
-      <main className="py-16">
+      <main className="py-8 sm:py-12 lg:py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-
-          
-
           {/* Featured News */}
-          <section className="mb-16">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Award className="w-6 h-6 text-primary" />
+          <section className="mb-12 sm:mb-16">
+            <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+              <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                <Award className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
-              <h2 className="text-3xl font-bold text-foreground">Featured Stories</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Featured Stories</h2>
             </div>
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
               {featuredNews.map((article) => {
                 const IconComponent = article.icon;
                 return (
-                  <Card key={article.id} className="border-0 shadow-lg overflow-hidden group hover:shadow-xl transition-shadow duration-300">
-                    <div className="relative h-48 overflow-hidden">
+                  <Link key={article.id} href={`/news/${article.slug}`}>
+                    <Card className="border-0 shadow-lg overflow-hidden group hover:shadow-xl transition-shadow duration-300 cursor-pointer h-full">
+                      <div className="relative h-48 overflow-hidden">
                       <img 
                         src={article.image} 
                         alt={article.title}
@@ -189,24 +117,26 @@ export default function NewsUpdates() {
                       </div>
                     </CardContent>
                   </Card>
+                </Link>
                 );
               })}
             </div>
           </section>
 
           {/* Regular News */}
-          <section className="mb-16">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Newspaper className="w-6 h-6 text-primary" />
+          <section className="mb-12 sm:mb-16">
+            <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+              <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                <Newspaper className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
-              <h2 className="text-3xl font-bold text-foreground">Recent Updates</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Recent Updates</h2>
             </div>
-            <div className="grid gap-6">
+            <div className="grid gap-4 sm:gap-6">
               {regularNews.map((article) => {
                 const IconComponent = article.icon;
                 return (
-                  <Card key={article.id} className="border-0 shadow-lg overflow-hidden group hover:shadow-xl transition-shadow duration-300">
+                  <Link key={article.id} href={`/news/${article.slug}`}>
+                    <Card className="border-0 shadow-lg overflow-hidden group hover:shadow-xl transition-shadow duration-300 cursor-pointer h-full">
                     <CardContent className="p-0">
                       <div className="flex flex-col md:flex-row">
                         <div className="md:w-1/3 relative h-48 md:h-auto">
@@ -252,20 +182,21 @@ export default function NewsUpdates() {
                       </div>
                     </CardContent>
                   </Card>
+                </Link>
                 );
               })}
             </div>
           </section>
 
           {/* Team Spotlight */}
-          <section className="mb-16">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Users className="w-6 h-6 text-primary" />
+          <section className="mb-12 sm:mb-16">
+            <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+              <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
-              <h2 className="text-3xl font-bold text-foreground">Team Spotlight</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Team Spotlight</h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               <Card className="border-0 shadow-lg overflow-hidden">
                 <div className="relative h-64">
                   <img 
@@ -330,28 +261,28 @@ export default function NewsUpdates() {
 
           {/* Newsletter Signup */}
           <Card className="border-0 shadow-lg bg-gradient-to-br from-primary to-primary/80 text-white">
-            <CardContent className="p-12 text-center">
-              <div className="flex items-center justify-center mb-6">
-                <div className="p-3 bg-white/10 rounded-lg">
-                  <Newspaper className="w-8 h-8" />
+            <CardContent className="p-6 sm:p-8 lg:p-12 text-center">
+              <div className="flex items-center justify-center mb-4 sm:mb-6">
+                <div className="p-2 sm:p-3 bg-white/10 rounded-lg">
+                  <Newspaper className="w-6 h-6 sm:w-8 sm:h-8" />
                 </div>
               </div>
-              <h3 className="text-3xl font-bold mb-4">Stay Updated with CMC Logistics</h3>
-              <p className="text-blue-100 mb-8 max-w-2xl mx-auto text-lg">
+              <h3 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Stay Updated with CMC Logistics News</h3>
+              <p className="text-blue-100 mb-6 sm:mb-8 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg">
                 Subscribe to our newsletter to receive the latest news, updates, and industry insights 
                 directly in your inbox. Never miss important announcements about our services.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md mx-auto">
                 <input
                   type="email"
                   placeholder="Enter your email address"
-                  className="flex-1 px-4 py-3 rounded-lg text-foreground border-0 focus:ring-2 focus:ring-white"
+                  className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-foreground border-0 focus:ring-2 focus:ring-white text-sm sm:text-base"
                 />
                 <Button size="lg" variant="secondary" className="whitespace-nowrap bg-white text-primary hover:bg-gray-100">
                   Subscribe Now
                 </Button>
               </div>
-              <p className="text-blue-100 text-sm mt-4">
+              <p className="text-blue-100 text-xs sm:text-sm mt-3 sm:mt-4">
                 Join 5,000+ logistics professionals who trust our insights
               </p>
             </CardContent>
