@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plane, Ship, Truck, Warehouse, Package, Shield, ArrowRight } from 'lucide-react';
+import { Link } from 'wouter';
 
 // Import service images
 import airFreightImage from '@assets/generated_images/Air_freight_cargo_loading_10ab2b90.png';
@@ -104,15 +105,17 @@ export default function Services() {
                       ))}
                     </ul>
 
-                    <Button 
-                      variant="ghost"
-                      size="sm"
-                      className="w-full text-primary hover:text-primary hover:bg-primary/10 justify-between group/btn text-xs h-8 mt-2"
-                      data-testid={`button-learn-more-${service.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
-                    >
-                      Learn More
-                      <ArrowRight className="w-3 h-3 transition-transform group-hover/btn:translate-x-1" />
-                    </Button>
+                    <Link href="/services">
+                      <Button 
+                        variant="ghost"
+                        size="sm"
+                        className="w-full text-primary hover:text-primary hover:bg-primary/10 justify-between group/btn text-xs h-8 mt-2"
+                        data-testid={`button-learn-more-${service.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                      >
+                        Learn More
+                        <ArrowRight className="w-3 h-3 transition-transform group-hover/btn:translate-x-1" />
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </Card>
