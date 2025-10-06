@@ -23,6 +23,11 @@ const printStyles = `
       margin: 15mm;
     }
 
+    html, body {
+      height: auto;
+      overflow: visible !important;
+    }
+
     * {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
@@ -30,23 +35,24 @@ const printStyles = `
     }
 
     body * {
-      visibility: hidden;
+      visibility: hidden !important;
     }
 
     #print-receipt-container,
     #print-receipt-container * {
-      visibility: visible;
+      visibility: visible !important;
     }
 
     #print-receipt-container {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      max-width: 210mm;
+      position: fixed !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      max-width: 210mm !important;
       background: white !important;
-      padding: 0;
-      margin: 0;
+      padding: 0 !important;
+      margin: 0 !important;
+      z-index: 99999 !important;
     }
 
     .no-print,
@@ -1095,9 +1101,22 @@ export default function TrackingPage() {
                   </div>
                   <Button 
                     onClick={() => {
+                      // Ensure print receipt container is visible
+                      const printContainer = document.getElementById('print-receipt-container');
+                      if (printContainer) {
+                        printContainer.style.display = 'block';
+                      }
+                      
                       // Small delay to ensure styles are applied
                       setTimeout(() => {
                         window.print();
+                        
+                        // Hide print container after printing
+                        setTimeout(() => {
+                          if (printContainer) {
+                            printContainer.style.display = 'none';
+                          }
+                        }, 100);
                       }, 100);
                     }} 
                     variant="outline" 
@@ -1217,7 +1236,7 @@ export default function TrackingPage() {
             </Card>
 
             {/* Print Receipt Section - Hidden on screen, shown when printing */}
-            <div id="print-receipt-container" className="hidden">
+            <div id="print-receipt-container" style={{ display: 'none' }}>
               <div className="print-content">
                 <div className="print-header">
                   <div className="print-logo">
