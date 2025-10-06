@@ -135,26 +135,6 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
                 {isLoading ? 'Logging in...' : 'Login'}
               </Button>
             </form>
-
-            <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-              <h4 className="font-semibold text-sm mb-2">Demo Credentials:</h4>
-              <div className="text-sm text-muted-foreground space-y-1">
-                <p><strong>Username:</strong> admin</p>
-                <p><strong>Password:</strong> admin123</p>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="mt-2 w-full"
-                onClick={() => {
-                  setUsername('admin');
-                  setPassword('admin123');
-                }}
-                data-testid="button-use-demo-credentials"
-              >
-                Use Demo Credentials
-              </Button>
-            </div>
           </CardContent>
         </Card>
       </div>
