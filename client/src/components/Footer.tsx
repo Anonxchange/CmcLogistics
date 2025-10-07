@@ -112,7 +112,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-3 text-blue-100">
                 <MapPin className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm">Global Headquarters, New York</span>
+                <span className="text-sm">8340 Harford Parkville, Maryland USA</span>
               </div>
             </div>
 
