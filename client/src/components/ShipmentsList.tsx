@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MapPin, Package, Calendar, User, Phone, Mail, Eye, Send, Trash2 } from 'lucide-react';
+import { MapPin, Package, Calendar, User, Phone, Mail, Eye, Send, Trash2, Edit, Printer } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface ShipmentsListProps {
@@ -11,9 +11,11 @@ interface ShipmentsListProps {
   onRefresh: () => void;
   onSendEmail?: (shipment: any) => void;
   onDelete?: (shipmentId: number) => void;
+  onEdit?: (shipment: any) => void;
+  onPrintInvoice?: (shipment: any) => void;
 }
 
-export default function ShipmentsList({ shipments, onUpdateTracking, onRefresh, onSendEmail, onDelete }: ShipmentsListProps) {
+export default function ShipmentsList({ shipments, onUpdateTracking, onRefresh, onSendEmail, onDelete, onEdit, onPrintInvoice }: ShipmentsListProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-500 hover:bg-yellow-600';
@@ -128,15 +130,39 @@ export default function ShipmentsList({ shipments, onUpdateTracking, onRefresh, 
                               variant="ghost"
                               onClick={() => onUpdateTracking(shipment)}
                               data-testid={`button-update-tracking-${shipment.tracking_number}`}
+                              title="Update Tracking"
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
+                            {onEdit && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => onEdit(shipment)}
+                                data-testid={`button-edit-${shipment.tracking_number}`}
+                                title="Edit Shipment"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            )}
+                            {onPrintInvoice && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => onPrintInvoice(shipment)}
+                                data-testid={`button-print-${shipment.tracking_number}`}
+                                title="Print Invoice"
+                              >
+                                <Printer className="w-4 h-4" />
+                              </Button>
+                            )}
                             {onSendEmail && (
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => onSendEmail(shipment)}
                                 data-testid={`button-send-email-${shipment.tracking_number}`}
+                                title="Send Email"
                               >
                                 <Send className="w-4 h-4" />
                               </Button>
@@ -147,6 +173,7 @@ export default function ShipmentsList({ shipments, onUpdateTracking, onRefresh, 
                                 variant="destructive"
                                 onClick={() => onDelete(shipment.id)}
                                 data-testid={`button-delete-${shipment.tracking_number}`}
+                                title="Delete Shipment"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
