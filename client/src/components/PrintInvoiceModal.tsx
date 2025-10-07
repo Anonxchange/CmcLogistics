@@ -26,12 +26,28 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
+    // Get all stylesheets from the current document
+    const styles = Array.from(document.styleSheets)
+      .map(styleSheet => {
+        try {
+          return Array.from(styleSheet.cssRules)
+            .map(rule => rule.cssText)
+            .join('\n');
+        } catch (e) {
+          console.warn('Could not access stylesheet:', e);
+          return '';
+        }
+      })
+      .join('\n');
+
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
           <title>Invoice - ${shipment?.tracking_number || 'N/A'}</title>
           <style>
+            ${styles}
+            
             * {
               margin: 0;
               padding: 0;
