@@ -239,7 +239,7 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
               </h3>
               <div className="relative w-48 h-48 mx-auto">
                 <img 
-                  src="/stamps/official-stamp.png" 
+                  src="/stamps/Gemini_Generated_Image_3a8m3r3a8m3r3a8m.png" 
                   alt="Official Stamp" 
                   className="w-full h-full object-contain"
                 />
@@ -253,7 +253,7 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
               <h3 className="font-bold text-sm mb-3">Stamp Duty:</h3>
               <div className="relative w-32 h-32 mx-auto transform rotate-12">
                 <img 
-                  src="/stamps/stamp-duty.jpeg" 
+                  src="/stamps/IMG_0940.jpeg" 
                   alt="Stamp Duty" 
                   className="w-full h-full object-contain"
                 />
