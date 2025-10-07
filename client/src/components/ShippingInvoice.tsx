@@ -56,11 +56,12 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
               </div>
               
               {/* Header illustration */}
-              <div className="relative w-full sm:w-48 md:w-64 h-24 sm:h-32 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <Truck className="w-10 h-10 sm:w-12 sm:h-12 text-primary mx-auto mb-2" />
-                  <Globe className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400 mx-auto" />
-                </div>
+              <div className="relative w-full sm:w-48 md:w-64 h-24 sm:h-32 rounded-lg overflow-hidden border-2 border-gray-200 bg-white">
+                <img 
+                  src="/warehouse-worker.png" 
+                  alt="CMC Logistics Professional" 
+                  className="w-full h-full object-cover object-center"
+                />
               </div>
             </div>
             
@@ -213,6 +214,7 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
                         <div className="w-3 h-3 bg-orange-400 rounded-full"></div>
                       </div>
                     </div>
+                    <div className="px-2 py-1 bg-blue-500 text-white text-xs font-bold rounded">AMEX</div>
                   </div>
                   <div className="bg-white px-2 py-1 rounded">
                     <span className="text-blue-700 font-bold text-sm">Pay</span>
@@ -235,24 +237,12 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
               <h3 className="font-bold text-sm mb-3">
                 Official Stamp/{formatDate(new Date()).split(',')[0]}
               </h3>
-              <div className="relative w-32 h-32 mx-auto">
-                <svg viewBox="0 0 200 200" className="w-full h-full">
-                  <defs>
-                    <path id="circle" d="M 100, 100 m -75, 0 a 75,75 0 1,1 150,0 a 75,75 0 1,1 -150,0"/>
-                  </defs>
-                  <circle cx="100" cy="100" r="90" fill="none" stroke="#0EA5E9" strokeWidth="4"/>
-                  <circle cx="100" cy="100" r="80" fill="none" stroke="#0EA5E9" strokeWidth="2"/>
-                  
-                  <text fontSize="11" fontWeight="bold" fill="#0369a1">
-                    <textPath href="#circle" startOffset="5%">
-                      CMC LOGISTICS COMPANY
-                    </textPath>
-                  </text>
-                  
-                  <text x="100" y="95" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#0369a1">CMC</text>
-                  <text x="100" y="115" textAnchor="middle" fontSize="10" fill="#0EA5E9">OFFICIAL</text>
-                  <text x="100" y="130" textAnchor="middle" fontSize="8" fill="#0EA5E9">CERTIFIED</text>
-                </svg>
+              <div className="relative w-48 h-48 mx-auto">
+                <img 
+                  src="/stamps/official-stamp.png" 
+                  alt="Official Stamp" 
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div className="text-center mt-2">
                 <p className="font-bold text-sm">Amount Due</p>
@@ -262,15 +252,11 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
             <div>
               <h3 className="font-bold text-sm mb-3">Stamp Duty:</h3>
               <div className="relative w-32 h-32 mx-auto transform rotate-12">
-                <svg viewBox="0 0 150 150" className="w-full h-full">
-                  <circle cx="75" cy="75" r="68" fill="none" stroke="#dc2626" strokeWidth="8" strokeDasharray="5,3" opacity="0.6"/>
-                  <circle cx="75" cy="75" r="55" fill="none" stroke="#dc2626" strokeWidth="4" opacity="0.6"/>
-                  
-                  <text x="75" y="55" textAnchor="middle" fontSize="24" fontWeight="bold" fill="#dc2626" opacity="0.6">STAMP</text>
-                  <text x="75" y="80" textAnchor="middle" fontSize="24" fontWeight="bold" fill="#dc2626" opacity="0.6">DUTY</text>
-                  
-                  <text x="75" y="100" textAnchor="middle" fontSize="20" fill="#dc2626" opacity="0.6">★</text>
-                </svg>
+                <img 
+                  src="/stamps/stamp-duty.jpeg" 
+                  alt="Stamp Duty" 
+                  className="w-full h-full object-contain"
+                />
               </div>
             </div>
           </div>
