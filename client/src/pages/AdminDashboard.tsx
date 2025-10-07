@@ -23,10 +23,12 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 import CreateShipmentModal from '@/components/CreateShipmentModal';
+import EditShipmentModal from '@/components/EditShipmentModal';
 import ShipmentsList from '@/components/ShipmentsList';
 import TrackingUpdatesModal from '@/components/TrackingUpdatesModal';
 import SendEmailModal from '@/components/SendEmailModal';
 import GeneralEmailForm from '@/components/GeneralEmailForm';
+import PrintInvoiceModal from '@/components/PrintInvoiceModal';
 
 interface AdminDashboardProps {
   admin: any;
@@ -39,8 +41,10 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
   const [carPurchases, setCarPurchases] = useState<any[]>([]);
   const [quotes, setQuotes] = useState<any[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [selectedShipment, setSelectedShipment] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeView, setActiveView] = useState('dashboard');
@@ -156,6 +160,38 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
         variant: "destructive",
       });
     }
+  };
+
+  const handleEditShipment = (shipment: any) => {
+    setSelectedShipment(shipment);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    fetchDashboardData();
+    setIsEditModalOpen(false);
+    setSelectedShipment(null);
+  };
+
+  const handlePrintInvoice = (shipment: any) => {
+    // Transform snake_case database fields to camelCase for the modal
+    const transformedShipment = {
+      trackingNumber: shipment.tracking_number,
+      senderName: shipment.sender_name,
+      senderAddress: shipment.sender_address,
+      senderPhone: shipment.sender_phone,
+      recipientName: shipment.recipient_name,
+      recipientAddress: shipment.recipient_address,
+      recipientPhone: shipment.recipient_phone,
+      serviceType: shipment.service_type,
+      packageWeight: shipment.weight,
+      status: shipment.status,
+      estimatedDelivery: shipment.estimated_delivery,
+      cost: shipment.cost,
+      clearance_cost: shipment.clearance_cost
+    };
+    setSelectedShipment(transformedShipment);
+    setIsPrintModalOpen(true);
   };
 
   const menuItems = [
@@ -335,6 +371,8 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
                 shipments={shipments}
                 onUpdateTracking={handleUpdateTracking}
                 onRefresh={fetchDashboardData}
+                onEdit={handleEditShipment}
+                onPrintInvoice={handlePrintInvoice}
                 onSendEmail={handleSendEmail}
                 onDelete={handleDeleteShipment}
               />
@@ -541,6 +579,25 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
         isOpen={isEmailModalOpen}
         onClose={() => {
           setIsEmailModalOpen(false);
+          setSelectedShipment(null);
+        }}
+        shipment={selectedShipment}
+      />
+
+      <EditShipmentModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedShipment(null);
+        }}
+        onSuccess={handleEditSuccess}
+        shipment={selectedShipment}
+      />
+
+      <PrintInvoiceModal
+        isOpen={isPrintModalOpen}
+        onClose={() => {
+          setIsPrintModalOpen(false);
           setSelectedShipment(null);
         }}
         shipment={selectedShipment}
