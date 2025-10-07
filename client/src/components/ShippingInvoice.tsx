@@ -10,6 +10,12 @@ interface ShippingInvoiceProps {
 
 const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
   ({ trackingNumber, shipment }, ref) => {
+    // Debug: Log the shipment data to see what we're receiving
+    console.log('ShippingInvoice - Full shipment data:', shipment);
+    console.log('ShippingInvoice - cost:', shipment.cost);
+    console.log('ShippingInvoice - clearance_cost:', shipment.clearance_cost);
+    console.log('ShippingInvoice - clearanceCost:', shipment.clearanceCost);
+    
     const formatDate = (date: any) => {
       if (!date) return 'N/A';
       try {
@@ -58,7 +64,7 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
               {/* Header illustration */}
               <div className="relative w-full sm:w-48 md:w-64 h-24 sm:h-32 rounded-lg overflow-hidden border-2 border-gray-200 bg-white">
                 <img 
-                  src="/Gemini_Generated_Image_ebk705ebk705ebk7.png" 
+                  src="/warehouse-worker.png" 
                   alt="CMC Logistics Professional" 
                   className="w-full h-full object-cover object-center"
                 />
@@ -142,7 +148,7 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
                   <strong>Booking Mode:</strong> 
                   <span className="ml-1 px-2 py-0.5 bg-gray-200 rounded text-xs">To Pay</span>
                 </p>
-                <p><strong>Shipment Cost:</strong> {shipment.cost || 'N/A'}</p>
+                <p><strong>Shipment Cost:</strong> ${shipment.cost || shipment.shipping_cost || '0.00'}</p>
                 <p className="font-mono break-all"><strong>Tracking:</strong> {trackingNumber}</p>
               </div>
             </div>
@@ -188,9 +194,9 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
               </thead>
               <tbody>
                 <tr>
-                  <td className="py-3 px-2 border border-gray-400 font-bold">{shipment.cost || 'N/A'}</td>
-                  <td className="py-3 px-2 border border-gray-400">USD</td>
-                  <td className="py-3 px-2 border border-gray-400 font-bold">{shipment.cost || 'N/A'}</td>
+                  <td className="py-3 px-2 border border-gray-400 font-bold">${shipment.cost || shipment.shipping_cost || '0.00'}</td>
+                  <td className="py-3 px-2 border border-gray-400">${shipment.clearance_cost || shipment.clearanceCost || '0.00'}</td>
+                  <td className="py-3 px-2 border border-gray-400 font-bold">${((parseFloat(shipment.cost || shipment.shipping_cost || '0') + parseFloat(shipment.clearance_cost || shipment.clearanceCost || '0'))).toFixed(2)}</td>
                 </tr>
               </tbody>
             </table>
@@ -239,7 +245,7 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
               </h3>
               <div className="relative w-48 h-48 mx-auto">
                 <img 
-                  src="/stamps/Gemini_Generated_Image_3a8m3r3a8m3r3a8m.png" 
+                  src="/stamps/official-stamp.png" 
                   alt="Official Stamp" 
                   className="w-full h-full object-contain"
                 />
@@ -253,7 +259,7 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
               <h3 className="font-bold text-sm mb-3">Stamp Duty:</h3>
               <div className="relative w-32 h-32 mx-auto transform rotate-12">
                 <img 
-                  src="/stamps/IMG_0940.jpeg" 
+                  src="/stamps/stamp-duty.jpeg" 
                   alt="Stamp Duty" 
                   className="w-full h-full object-contain"
                 />
@@ -285,15 +291,15 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8">
               <div>
                 <h3 className="font-bold text-xs sm:text-sm mb-2">SHIPPING COST:</h3>
-                <p className="text-base sm:text-lg">{shipment.cost || 'N/A'}</p>
+                <p className="text-base sm:text-lg">${shipment.cost || shipment.shipping_cost || '0.00'}</p>
               </div>
               <div>
                 <h3 className="font-bold text-xs sm:text-sm mb-2">CLEARANCE COST:</h3>
-                <p className="text-base sm:text-lg">USD</p>
+                <p className="text-base sm:text-lg">${shipment.clearance_cost || shipment.clearanceCost || '0.00'}</p>
               </div>
               <div>
                 <h3 className="font-bold text-xs sm:text-sm mb-2">TOTAL AMOUNT:</h3>
-                <p className="text-lg sm:text-xl font-bold text-primary">{shipment.cost || 'N/A'}</p>
+                <p className="text-lg sm:text-xl font-bold text-primary">${((parseFloat(shipment.cost || shipment.shipping_cost || '0') + parseFloat(shipment.clearance_cost || shipment.clearanceCost || '0'))).toFixed(2)}</p>
               </div>
             </div>
           </div>
