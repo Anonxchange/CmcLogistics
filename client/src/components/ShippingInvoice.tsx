@@ -10,11 +10,10 @@ interface ShippingInvoiceProps {
 
 const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
   ({ trackingNumber, shipment }, ref) => {
-    // Debug: Log the shipment data to see what we're receiving
-    console.log('ShippingInvoice - Full shipment data:', shipment);
-    console.log('ShippingInvoice - cost:', shipment.cost);
-    console.log('ShippingInvoice - clearance_cost:', shipment.clearance_cost);
-    console.log('ShippingInvoice - clearanceCost:', shipment.clearanceCost);
+    // Normalize field names - handle both snake_case (from Supabase) and camelCase
+    const cost = Number(shipment.cost ?? 0);
+    const clearanceCost = Number(shipment.clearance_cost ?? shipment.clearanceCost ?? 0);
+    const totalCost = cost + clearanceCost;
     
     const formatDate = (date: any) => {
       if (!date) return 'N/A';
@@ -88,7 +87,7 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
               CMC Logistics Company
             </h2>
             <p className="text-xs sm:text-sm text-gray-700 mb-1">
-              <strong>Address:</strong> Global Headquarters, New York
+              <strong>Address:</strong> 8340 Harford Parkville, Maryland USA
             </p>
             <p className="text-xs sm:text-sm text-gray-700 mb-1 break-all">
               <strong>Email:</strong> support@cmcautoslogistics.com
@@ -148,7 +147,7 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
                   <strong>Booking Mode:</strong> 
                   <span className="ml-1 px-2 py-0.5 bg-gray-200 rounded text-xs">To Pay</span>
                 </p>
-                <p><strong>Shipment Cost:</strong> ${shipment.cost || shipment.shipping_cost || '0.00'}</p>
+                <p><strong>Shipment Cost:</strong> ${cost.toFixed(2)}</p>
                 <p className="font-mono break-all"><strong>Tracking:</strong> {trackingNumber}</p>
               </div>
             </div>
@@ -194,9 +193,9 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
               </thead>
               <tbody>
                 <tr>
-                  <td className="py-3 px-2 border border-gray-400 font-bold">${shipment.cost || shipment.shipping_cost || '0.00'}</td>
-                  <td className="py-3 px-2 border border-gray-400">${shipment.clearance_cost || shipment.clearanceCost || '0.00'}</td>
-                  <td className="py-3 px-2 border border-gray-400 font-bold">${((parseFloat(shipment.cost || shipment.shipping_cost || '0') + parseFloat(shipment.clearance_cost || shipment.clearanceCost || '0'))).toFixed(2)}</td>
+                  <td className="py-3 px-2 border border-gray-400 font-bold">${cost.toFixed(2)}</td>
+                  <td className="py-3 px-2 border border-gray-400">${clearanceCost.toFixed(2)}</td>
+                  <td className="py-3 px-2 border border-gray-400 font-bold">${totalCost.toFixed(2)}</td>
                 </tr>
               </tbody>
             </table>
@@ -291,15 +290,15 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8">
               <div>
                 <h3 className="font-bold text-xs sm:text-sm mb-2">SHIPPING COST:</h3>
-                <p className="text-base sm:text-lg">${shipment.cost || shipment.shipping_cost || '0.00'}</p>
+                <p className="text-base sm:text-lg">${cost.toFixed(2)}</p>
               </div>
               <div>
                 <h3 className="font-bold text-xs sm:text-sm mb-2">CLEARANCE COST:</h3>
-                <p className="text-base sm:text-lg">${shipment.clearance_cost || shipment.clearanceCost || '0.00'}</p>
+                <p className="text-base sm:text-lg">${clearanceCost.toFixed(2)}</p>
               </div>
               <div>
                 <h3 className="font-bold text-xs sm:text-sm mb-2">TOTAL AMOUNT:</h3>
-                <p className="text-lg sm:text-xl font-bold text-primary">${((parseFloat(shipment.cost || shipment.shipping_cost || '0') + parseFloat(shipment.clearance_cost || shipment.clearanceCost || '0'))).toFixed(2)}</p>
+                <p className="text-lg sm:text-xl font-bold text-primary">${totalCost.toFixed(2)}</p>
               </div>
             </div>
           </div>
