@@ -58,7 +58,7 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
               {/* Header illustration */}
               <div className="relative w-full sm:w-48 md:w-64 h-24 sm:h-32 rounded-lg overflow-hidden border-2 border-gray-200 bg-white">
                 <img 
-                  src="/warehouse-worker.png" 
+                  src="/Gemini_Generated_Image_ebk705ebk705ebk7.png" 
                   alt="CMC Logistics Professional" 
                   className="w-full h-full object-cover object-center"
                 />
