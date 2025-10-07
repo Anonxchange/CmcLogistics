@@ -26,15 +26,30 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
     // Clone the content to avoid modifying the original
     const clonedContent = printContents.cloneNode(true) as HTMLElement;
     
-    // Convert all images to absolute URLs
+    // Convert all images to absolute URLs and preload them
     const images = clonedContent.getElementsByTagName('img');
+    const imageLoadPromises: Promise<void>[] = [];
+    
     for (let img of Array.from(images)) {
       const src = img.getAttribute('src');
-      if (src && src.startsWith('/')) {
-        // Convert relative URLs to absolute URLs
-        img.setAttribute('src', window.location.origin + src);
+      if (src) {
+        const absoluteSrc = src.startsWith('/') ? window.location.origin + src : src;
+        img.setAttribute('src', absoluteSrc);
+        
+        // Create a promise to track when each image loads
+        imageLoadPromises.push(
+          new Promise((resolve) => {
+            const preloadImg = new Image();
+            preloadImg.onload = () => resolve();
+            preloadImg.onerror = () => resolve(); // Resolve even on error to not block printing
+            preloadImg.src = absoluteSrc;
+          })
+        );
       }
     }
+
+    // Wait for all images to preload
+    await Promise.all(imageLoadPromises);
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
@@ -81,6 +96,12 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
               color-adjust: exact;
             }
 
+            img {
+              max-width: 100%;
+              height: auto;
+              display: block;
+            }
+
             @page {
               size: A4;
               margin: 10mm;
@@ -101,6 +122,10 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
                 print-color-adjust: exact !important;
                 color-adjust: exact !important;
               }
+              
+              img {
+                page-break-inside: avoid;
+              }
             }
           </style>
         </head>
@@ -112,12 +137,24 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
 
     printWindow.document.close();
 
-    // Wait for images and styles to load
+    // Wait for document to be ready and images to load in the print window
+    printWindow.onload = () => {
+      // Additional delay to ensure everything is rendered
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+      }, 500);
+    };
+
+    // Fallback if onload doesn't fire
     setTimeout(() => {
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-    }, 1000);
+      if (printWindow && !printWindow.closed) {
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+      }
+    }, 2000);
   };
 
   if (!shipment) {
