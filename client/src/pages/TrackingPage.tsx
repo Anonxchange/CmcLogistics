@@ -451,7 +451,9 @@ export default function TrackingPage() {
           packageWeight: shipment.weight,
           status: shipment.status,
           estimatedDelivery: shipment.estimated_delivery,
-          currentLocation: updates && updates.length > 0 ? updates[0].location : null
+          currentLocation: updates && updates.length > 0 ? updates[0].location : null,
+          cost: shipment.cost,
+          clearance_cost: shipment.clearance_cost
         },
         trackingUpdates: updates || []
       };
