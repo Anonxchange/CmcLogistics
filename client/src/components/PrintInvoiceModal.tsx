@@ -19,14 +19,32 @@ interface PrintInvoiceModalProps {
 export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintInvoiceModalProps) {
   const invoiceRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     const printContents = invoiceRef.current;
     if (!printContents) return;
+
+    // Clone the content to avoid modifying the original
+    const clonedContent = printContents.cloneNode(true) as HTMLElement;
+    
+    // Convert all images to absolute URLs
+    const images = clonedContent.getElementsByTagName('img');
+    for (let img of Array.from(images)) {
+      const src = img.getAttribute('src');
+      if (src && src.startsWith('/')) {
+        // Convert relative URLs to absolute URLs
+        img.setAttribute('src', window.location.origin + src);
+      }
+    }
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
-    // Get all stylesheets from the current document
+    // Get Tailwind styles from link tags
+    const tailwindLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+      .map(link => `<link rel="stylesheet" href="${(link as HTMLLinkElement).href}">`)
+      .join('\n');
+
+    // Get inline styles
     const styles = Array.from(document.styleSheets)
       .map(styleSheet => {
         try {
@@ -34,7 +52,6 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
             .map(rule => rule.cssText)
             .join('\n');
         } catch (e) {
-          console.warn('Could not access stylesheet:', e);
           return '';
         }
       })
@@ -45,6 +62,8 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
       <html>
         <head>
           <title>Invoice - ${shipment?.tracking_number || 'N/A'}</title>
+          <meta charset="utf-8">
+          ${tailwindLinks}
           <style>
             ${styles}
             
@@ -56,6 +75,7 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
 
             body {
               font-family: Arial, sans-serif;
+              background: white;
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
               color-adjust: exact;
@@ -85,18 +105,19 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
           </style>
         </head>
         <body>
-          ${printContents.innerHTML}
+          ${clonedContent.innerHTML}
         </body>
       </html>
     `);
 
     printWindow.document.close();
 
+    // Wait for images and styles to load
     setTimeout(() => {
       printWindow.focus();
       printWindow.print();
       printWindow.close();
-    }, 250);
+    }, 1000);
   };
 
   if (!shipment) {
