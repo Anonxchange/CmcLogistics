@@ -31,7 +31,8 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
     packageDescription: '',
     currentLocation: '',
     estimatedDelivery: '',
-    cost: ''
+    cost: '',
+    clearanceCost: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -60,7 +61,7 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
 
     try {
       const trackingNumber = generateTrackingNumber();
-      
+
       const shipmentData = {
         tracking_number: trackingNumber,
         sender_name: formData.senderName,
@@ -77,7 +78,8 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
         dimensions: formData.packageDimensions || null,
         status: 'pending',
         estimated_delivery: formData.estimatedDelivery || null,
-        cost: formData.cost || null,
+        cost: formData.cost ? parseFloat(formData.cost) : null,
+        clearance_cost: formData.clearanceCost ? parseFloat(formData.clearanceCost) : null,
       };
 
       const { data: newShipment, error: shipmentError } = await supabase
@@ -108,7 +110,7 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
         title: "Shipment created successfully",
         description: `Tracking number: ${trackingNumber}`,
       });
-      
+
       setFormData({
         senderName: '',
         senderAddress: '',
@@ -124,7 +126,8 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
         packageDescription: '',
         currentLocation: '',
         estimatedDelivery: '',
-        cost: ''
+        cost: '',
+        clearanceCost: ''
       });
       onSuccess();
     } catch (error) {
@@ -273,17 +276,17 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
                 />
               </div>
             </div>
+            <div>
+              <Label htmlFor="packageDimensions">Package Dimensions (L x W x H)</Label>
+              <Input
+                id="packageDimensions"
+                placeholder="e.g., 30 x 20 x 15 cm"
+                value={formData.packageDimensions}
+                onChange={(e) => handleInputChange('packageDimensions', e.target.value)}
+                data-testid="input-package-dimensions"
+              />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="packageDimensions">Package Dimensions (L x W x H)</Label>
-                <Input
-                  id="packageDimensions"
-                  placeholder="e.g., 30 x 20 x 15 cm"
-                  value={formData.packageDimensions}
-                  onChange={(e) => handleInputChange('packageDimensions', e.target.value)}
-                  data-testid="input-package-dimensions"
-                />
-              </div>
               <div>
                 <Label htmlFor="cost">Shipping Cost ($)</Label>
                 <Input
@@ -293,6 +296,17 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
                   value={formData.cost}
                   onChange={(e) => handleInputChange('cost', e.target.value)}
                   data-testid="input-cost"
+                />
+              </div>
+              <div>
+                <Label htmlFor="clearanceCost">Clearance Cost ($)</Label>
+                <Input
+                  id="clearanceCost"
+                  type="number"
+                  step="0.01"
+                  value={formData.clearanceCost}
+                  onChange={(e) => handleInputChange('clearanceCost', e.target.value)}
+                  data-testid="input-clearance-cost"
                 />
               </div>
             </div>
