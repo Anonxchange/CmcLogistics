@@ -106,17 +106,17 @@ export default function Contact() {
       icon: MapPin,
       title: "Visit Our Office",
       description: "Meet our team at our headquarters",
-      contact: "123 Logistics Plaza, New York, NY 10001",
+      contact: "8340 Harford Parkville, Maryland USA",
       hours: "Mon-Fri, 9AM-6PM EST"
     }
   ];
 
   const offices = [
     {
-      city: "New York (Headquarters)",
-      address: "123 Logistics Plaza, New York, NY 10001",
+      city: "Maryland (Headquarters)",
+      address: "8340 Harford Parkville, Maryland USA",
       phone: "+1 (815) 257-1522",
-      email: "ny.office@cmclogistics.com"
+      email: "support@cmcautoslogistics.com"
     },
     {
       city: "Los Angeles",
