@@ -1,3 +1,4 @@
+
 import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,142 +20,171 @@ interface PrintInvoiceModalProps {
 export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintInvoiceModalProps) {
   const invoiceRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = async () => {
+  const handlePrint = () => {
     const printContents = invoiceRef.current;
-    if (!printContents) return;
-
-    // Clone the content to avoid modifying the original
-    const clonedContent = printContents.cloneNode(true) as HTMLElement;
-    
-    // Convert all images to absolute URLs and preload them
-    const images = clonedContent.getElementsByTagName('img');
-    const imageLoadPromises: Promise<void>[] = [];
-    
-    for (let img of Array.from(images)) {
-      const src = img.getAttribute('src');
-      if (src) {
-        const absoluteSrc = src.startsWith('/') ? window.location.origin + src : src;
-        img.setAttribute('src', absoluteSrc);
-        
-        // Create a promise to track when each image loads
-        imageLoadPromises.push(
-          new Promise((resolve) => {
-            const preloadImg = new Image();
-            preloadImg.onload = () => resolve();
-            preloadImg.onerror = () => resolve(); // Resolve even on error to not block printing
-            preloadImg.src = absoluteSrc;
-          })
-        );
-      }
+    if (!printContents) {
+      console.error('Print contents not found');
+      return;
     }
 
-    // Wait for all images to preload
-    await Promise.all(imageLoadPromises);
+    // Try to open a popup window first
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    
+    if (!printWindow) {
+      // Fallback for devices that don't support window.open() or have popups blocked
+      console.log('Popup blocked or not supported, using inline print method');
+      
+      // Create a hidden iframe for printing
+      const printFrame = document.createElement('iframe');
+      printFrame.style.position = 'fixed';
+      printFrame.style.right = '0';
+      printFrame.style.bottom = '0';
+      printFrame.style.width = '0';
+      printFrame.style.height = '0';
+      printFrame.style.border = '0';
+      document.body.appendChild(printFrame);
 
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
+      const frameDoc = printFrame.contentWindow?.document || printFrame.contentDocument;
+      if (!frameDoc) {
+        alert('Unable to print. Please try using your browser\'s print function (Ctrl+P or Cmd+P) while viewing this invoice.');
+        return;
+      }
 
-    // Get Tailwind styles from link tags
-    const tailwindLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
-      .map(link => `<link rel="stylesheet" href="${(link as HTMLLinkElement).href}">`)
-      .join('\n');
+      frameDoc.open();
+      frameDoc.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Invoice - ${shipment.trackingNumber}</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+              * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+              }
+              
+              body {
+                font-family: Arial, sans-serif;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                padding: 20px;
+              }
+              
+              @media print {
+                @page {
+                  size: A4;
+                  margin: 10mm;
+                }
+                
+                * {
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                  color-adjust: exact !important;
+                }
+                
+                body {
+                  padding: 0;
+                }
+              }
+              
+              @media (max-width: 768px) {
+                body {
+                  font-size: 12px;
+                }
+                table {
+                  font-size: 10px;
+                }
+              }
+            </style>
+          </head>
+          <body>
+            ${printContents.innerHTML}
+          </body>
+        </html>
+      `);
+      frameDoc.close();
 
-    // Get inline styles
-    const styles = Array.from(document.styleSheets)
-      .map(styleSheet => {
-        try {
-          return Array.from(styleSheet.cssRules)
-            .map(rule => rule.cssText)
-            .join('\n');
-        } catch (e) {
-          return '';
-        }
-      })
-      .join('\n');
+      // Wait for iframe to load, then print
+      setTimeout(() => {
+        printFrame.contentWindow?.focus();
+        printFrame.contentWindow?.print();
+        // Remove iframe after printing
+        setTimeout(() => {
+          document.body.removeChild(printFrame);
+        }, 100);
+      }, 250);
+      
+      return;
+    }
 
+    // Popup window approach (for devices that support it)
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Invoice - ${shipment?.tracking_number || 'N/A'}</title>
-          <meta charset="utf-8">
-          ${tailwindLinks}
+          <title>Invoice - ${shipment.trackingNumber}</title>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
-            ${styles}
-            
             * {
               margin: 0;
               padding: 0;
               box-sizing: border-box;
             }
-
+            
             body {
               font-family: Arial, sans-serif;
-              background: white;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-              color-adjust: exact;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              color-adjust: exact !important;
+              padding: 20px;
             }
-
-            img {
-              max-width: 100%;
-              height: auto;
-              display: block;
-            }
-
-            @page {
-              size: A4;
-              margin: 10mm;
-            }
-
+            
             @media print {
-              body {
-                margin: 0;
-                padding: 0;
+              @page {
+                size: A4;
+                margin: 10mm;
               }
-
-              .no-print {
-                display: none !important;
-              }
-
+              
               * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
                 color-adjust: exact !important;
               }
               
-              img {
-                page-break-inside: avoid;
+              body {
+                padding: 0;
+              }
+            }
+            
+            @media (max-width: 768px) {
+              body {
+                font-size: 12px;
+              }
+              table {
+                font-size: 10px;
               }
             }
           </style>
         </head>
         <body>
-          ${clonedContent.innerHTML}
+          ${printContents.innerHTML}
         </body>
       </html>
     `);
 
     printWindow.document.close();
 
-    // Wait for document to be ready and images to load in the print window
     printWindow.onload = () => {
-      // Additional delay to ensure everything is rendered
       setTimeout(() => {
         printWindow.focus();
         printWindow.print();
         printWindow.close();
-      }, 500);
+      }, 250);
     };
-
-    // Fallback if onload doesn't fire
-    setTimeout(() => {
-      if (printWindow && !printWindow.closed) {
-        printWindow.focus();
-        printWindow.print();
-        printWindow.close();
-      }
-    }, 2000);
   };
 
   if (!shipment) {
@@ -171,7 +201,7 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex gap-2 justify-end mb-4 no-print">
+        <div className="flex gap-2 justify-end mb-4">
           <Button onClick={handlePrint} className="gap-2">
             <Printer className="w-4 h-4" />
             Print Invoice
