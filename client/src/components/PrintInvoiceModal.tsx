@@ -63,15 +63,84 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
                 margin: 0;
                 padding: 0;
                 box-sizing: border-box;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
               }
               
               body {
                 font-family: Arial, sans-serif;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                color-adjust: exact !important;
-                padding: 20px;
+                background: white;
+                color: black;
               }
+              
+              /* Invoice container styles */
+              .max-w-4xl { max-width: 56rem; }
+              .mx-auto { margin-left: auto; margin-right: auto; }
+              .bg-white { background-color: white; }
+              .border { border-width: 1px; border-color: #e5e7eb; }
+              .rounded-lg { border-radius: 0.5rem; }
+              .overflow-hidden { overflow: hidden; }
+              
+              /* Header styles */
+              .bg-gray-800 { background-color: #1f2937 !important; }
+              .text-white { color: white !important; }
+              .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+              .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+              .flex { display: flex; }
+              .justify-between { justify-content: space-between; }
+              .items-center { align-items: center; }
+              .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+              .font-bold { font-weight: 700; }
+              .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+              
+              /* Grid and spacing */
+              .grid { display: grid; }
+              .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+              .gap-6 { gap: 1.5rem; }
+              .gap-4 { gap: 1rem; }
+              .gap-2 { gap: 0.5rem; }
+              .space-y-1 > * + * { margin-top: 0.25rem; }
+              .space-y-2 > * + * { margin-top: 0.5rem; }
+              .space-y-3 > * + * { margin-top: 0.75rem; }
+              .mb-2 { margin-bottom: 0.5rem; }
+              .mb-3 { margin-bottom: 0.75rem; }
+              .mb-4 { margin-bottom: 1rem; }
+              .mt-2 { margin-top: 0.5rem; }
+              
+              /* Typography */
+              .text-xs { font-size: 0.75rem; line-height: 1rem; }
+              .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+              .font-semibold { font-weight: 600; }
+              .text-gray-600 { color: #4b5563; }
+              .text-gray-700 { color: #374151; }
+              .text-center { text-align: center; }
+              
+              /* Table styles */
+              .w-full { width: 100%; }
+              .border-collapse { border-collapse: collapse; }
+              thead { background-color: #f9fafb; }
+              th, td { 
+                padding: 0.75rem;
+                text-align: left;
+                border: 1px solid #e5e7eb;
+              }
+              th { font-weight: 600; }
+              .text-right { text-align: right; }
+              
+              /* Footer */
+              .bg-gray-50 { background-color: #f9fafb !important; }
+              .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+              
+              /* Image styles */
+              .relative { position: relative; }
+              .w-48 { width: 12rem; }
+              .h-48 { height: 12rem; }
+              .w-32 { width: 8rem; }
+              .h-32 { height: 8rem; }
+              .object-contain { object-fit: contain; }
+              .transform { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
+              .rotate-12 { --tw-rotate: 12deg; transform: rotate(12deg); }
               
               @media print {
                 @page {
@@ -79,24 +148,20 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
                   margin: 10mm;
                 }
                 
+                body {
+                  padding: 0;
+                }
+                
                 * {
                   -webkit-print-color-adjust: exact !important;
                   print-color-adjust: exact !important;
                   color-adjust: exact !important;
                 }
-                
-                body {
-                  padding: 0;
-                }
               }
               
               @media (max-width: 768px) {
-                body {
-                  font-size: 12px;
-                }
-                table {
-                  font-size: 10px;
-                }
+                body { font-size: 12px; }
+                table { font-size: 10px; }
               }
             </style>
           </head>
@@ -133,15 +198,85 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
               margin: 0;
               padding: 0;
               box-sizing: border-box;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              color-adjust: exact !important;
             }
             
             body {
               font-family: Arial, sans-serif;
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-              color-adjust: exact !important;
+              background: white;
+              color: black;
               padding: 20px;
             }
+            
+            /* Invoice container styles */
+            .max-w-4xl { max-width: 56rem; }
+            .mx-auto { margin-left: auto; margin-right: auto; }
+            .bg-white { background-color: white; }
+            .border { border-width: 1px; border-color: #e5e7eb; }
+            .rounded-lg { border-radius: 0.5rem; }
+            .overflow-hidden { overflow: hidden; }
+            
+            /* Header styles */
+            .bg-gray-800 { background-color: #1f2937 !important; }
+            .text-white { color: white !important; }
+            .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+            .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+            .flex { display: flex; }
+            .justify-between { justify-content: space-between; }
+            .items-center { align-items: center; }
+            .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+            .font-bold { font-weight: 700; }
+            .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+            
+            /* Grid and spacing */
+            .grid { display: grid; }
+            .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .gap-6 { gap: 1.5rem; }
+            .gap-4 { gap: 1rem; }
+            .gap-2 { gap: 0.5rem; }
+            .space-y-1 > * + * { margin-top: 0.25rem; }
+            .space-y-2 > * + * { margin-top: 0.5rem; }
+            .space-y-3 > * + * { margin-top: 0.75rem; }
+            .mb-2 { margin-bottom: 0.5rem; }
+            .mb-3 { margin-bottom: 0.75rem; }
+            .mb-4 { margin-bottom: 1rem; }
+            .mt-2 { margin-top: 0.5rem; }
+            
+            /* Typography */
+            .text-xs { font-size: 0.75rem; line-height: 1rem; }
+            .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+            .font-semibold { font-weight: 600; }
+            .text-gray-600 { color: #4b5563; }
+            .text-gray-700 { color: #374151; }
+            .text-center { text-align: center; }
+            
+            /* Table styles */
+            .w-full { width: 100%; }
+            .border-collapse { border-collapse: collapse; }
+            thead { background-color: #f9fafb; }
+            th, td { 
+              padding: 0.75rem;
+              text-align: left;
+              border: 1px solid #e5e7eb;
+            }
+            th { font-weight: 600; }
+            .text-right { text-align: right; }
+            
+            /* Footer */
+            .bg-gray-50 { background-color: #f9fafb !important; }
+            .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+            
+            /* Image styles */
+            .relative { position: relative; }
+            .w-48 { width: 12rem; }
+            .h-48 { height: 12rem; }
+            .w-32 { width: 8rem; }
+            .h-32 { height: 8rem; }
+            .object-contain { object-fit: contain; }
+            .transform { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
+            .rotate-12 { --tw-rotate: 12deg; transform: rotate(12deg); }
             
             @media print {
               @page {
@@ -149,24 +284,20 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
                 margin: 10mm;
               }
               
+              body {
+                padding: 0;
+              }
+              
               * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
                 color-adjust: exact !important;
               }
-              
-              body {
-                padding: 0;
-              }
             }
             
             @media (max-width: 768px) {
-              body {
-                font-size: 12px;
-              }
-              table {
-                font-size: 10px;
-              }
+              body { font-size: 12px; }
+              table { font-size: 10px; }
             }
           </style>
         </head>
