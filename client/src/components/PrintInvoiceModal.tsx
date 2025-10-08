@@ -70,23 +70,89 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
               
               body {
                 font-family: Arial, sans-serif;
-                background: white;
-                color: black;
+                background: white !important;
+                color: black !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
               }
+              
+              /* Force all backgrounds and colors */
+              .bg-gray-800, .bg-gray-800 * { 
+                background-color: #1f2937 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              .bg-gray-50 { 
+                background-color: #f9fafb !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              .bg-blue-50 { 
+                background-color: #eff6ff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              .bg-blue-100 { 
+                background-color: #dbeafe !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              .bg-blue-500 { 
+                background-color: #3b82f6 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              .bg-blue-700 { 
+                background-color: #1d4ed8 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              .bg-red-600 { 
+                background-color: #dc2626 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              .bg-gradient-to-br { 
+                background: linear-gradient(to bottom right, #3b82f6, #2563eb) !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              .text-white { color: white !important; }
+              .text-blue-700 { color: #1d4ed8 !important; }
+              .text-blue-500 { color: #3b82f6 !important; }
+              .text-blue-800 { color: #1e40af !important; }
+              .text-green-700 { color: #15803d !important; }
+              .text-gray-600 { color: #4b5563 !important; }
+              .text-gray-700 { color: #374151 !important; }
+              .text-gray-800 { color: #1f2937 !important; }
+              .text-primary { color: #2563eb !important; }
               
               /* Invoice container styles */
               .max-w-4xl { max-width: 56rem; }
               .mx-auto { margin-left: auto; margin-right: auto; }
-              .bg-white { background-color: white; }
+              .bg-white { background-color: white !important; }
               .border { border-width: 1px; border-color: #e5e7eb; }
+              .border-2 { border-width: 2px; }
+              .border-gray-200 { border-color: #e5e7eb !important; }
+              .border-gray-300 { border-color: #d1d5db !important; }
+              .border-gray-400 { border-color: #9ca3af !important; }
+              .border-blue-300 { border-color: #93c5fd !important; }
               .rounded-lg { border-radius: 0.5rem; }
+              .rounded { border-radius: 0.25rem; }
               .overflow-hidden { overflow: hidden; }
               
               /* Header styles */
-              .bg-gray-800 { background-color: #1f2937 !important; }
-              .text-white { color: white !important; }
               .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
               .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+              .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+              .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+              .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+              .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+              .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+              .px-4 { padding-left: 1rem; padding-right: 1rem; }
+              .p-3 { padding: 0.75rem; }
+              .p-4 { padding: 1rem; }
+              .p-6 { padding: 1.5rem; }
               .flex { display: flex; }
               .justify-between { justify-content: space-between; }
               .items-center { align-items: center; }
@@ -100,6 +166,7 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
               .gap-6 { gap: 1.5rem; }
               .gap-4 { gap: 1rem; }
               .gap-2 { gap: 0.5rem; }
+              .gap-1 { gap: 0.25rem; }
               .space-y-1 > * + * { margin-top: 0.25rem; }
               .space-y-2 > * + * { margin-top: 0.5rem; }
               .space-y-3 > * + * { margin-top: 0.75rem; }
@@ -107,19 +174,35 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
               .mb-3 { margin-bottom: 0.75rem; }
               .mb-4 { margin-bottom: 1rem; }
               .mt-2 { margin-top: 0.5rem; }
+              .mt-4 { margin-top: 1rem; }
+              .-space-x-1 > * + * { margin-left: -0.25rem; }
               
               /* Typography */
               .text-xs { font-size: 0.75rem; line-height: 1rem; }
               .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+              .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
               .font-semibold { font-weight: 600; }
-              .text-gray-600 { color: #4b5563; }
-              .text-gray-700 { color: #374151; }
               .text-center { text-align: center; }
+              .uppercase { text-transform: uppercase; }
+              .whitespace-nowrap { white-space: nowrap; }
+              .break-all { word-break: break-all; }
               
               /* Table styles */
               .w-full { width: 100%; }
+              .w-10 { width: 2.5rem; }
+              .w-12 { width: 3rem; }
+              .w-6 { width: 1.5rem; }
+              .w-3 { width: 0.75rem; }
+              .h-10 { height: 2.5rem; }
+              .h-12 { height: 3rem; }
+              .h-6 { height: 1.5rem; }
+              .h-3 { height: 0.75rem; }
               .border-collapse { border-collapse: collapse; }
-              thead { background-color: #f9fafb; }
+              thead { 
+                background-color: #f9fafb !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
               th, td { 
                 padding: 0.75rem;
                 text-align: left;
@@ -128,19 +211,27 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
               th { font-weight: 600; }
               .text-right { text-align: right; }
               
-              /* Footer */
-              .bg-gray-50 { background-color: #f9fafb !important; }
-              .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
-              
               /* Image styles */
               .relative { position: relative; }
+              .absolute { position: absolute; }
               .w-48 { width: 12rem; }
               .h-48 { height: 12rem; }
               .w-32 { width: 8rem; }
               .h-32 { height: 8rem; }
               .object-contain { object-fit: contain; }
+              .object-cover { object-fit: cover; }
+              .object-center { object-position: center; }
               .transform { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
               .rotate-12 { --tw-rotate: 12deg; transform: rotate(12deg); }
+              .opacity-10 { opacity: 0.1; }
+              .col-span-full { grid-column: 1 / -1; }
+              
+              /* SVG and icons */
+              svg { display: inline-block; }
+              .fill-current { fill: currentColor; }
+              
+              /* Rounded corners */
+              .rounded-full { border-radius: 9999px; }
               
               @media print {
                 @page {
@@ -205,24 +296,90 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
             
             body {
               font-family: Arial, sans-serif;
-              background: white;
-              color: black;
+              background: white !important;
+              color: black !important;
               padding: 20px;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
             }
+            
+            /* Force all backgrounds and colors */
+            .bg-gray-800, .bg-gray-800 * { 
+              background-color: #1f2937 !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .bg-gray-50 { 
+              background-color: #f9fafb !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .bg-blue-50 { 
+              background-color: #eff6ff !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .bg-blue-100 { 
+              background-color: #dbeafe !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .bg-blue-500 { 
+              background-color: #3b82f6 !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .bg-blue-700 { 
+              background-color: #1d4ed8 !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .bg-red-600 { 
+              background-color: #dc2626 !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .bg-gradient-to-br { 
+              background: linear-gradient(to bottom right, #3b82f6, #2563eb) !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .text-white { color: white !important; }
+            .text-blue-700 { color: #1d4ed8 !important; }
+            .text-blue-500 { color: #3b82f6 !important; }
+            .text-blue-800 { color: #1e40af !important; }
+            .text-green-700 { color: #15803d !important; }
+            .text-gray-600 { color: #4b5563 !important; }
+            .text-gray-700 { color: #374151 !important; }
+            .text-gray-800 { color: #1f2937 !important; }
+            .text-primary { color: #2563eb !important; }
             
             /* Invoice container styles */
             .max-w-4xl { max-width: 56rem; }
             .mx-auto { margin-left: auto; margin-right: auto; }
-            .bg-white { background-color: white; }
+            .bg-white { background-color: white !important; }
             .border { border-width: 1px; border-color: #e5e7eb; }
+            .border-2 { border-width: 2px; }
+            .border-gray-200 { border-color: #e5e7eb !important; }
+            .border-gray-300 { border-color: #d1d5db !important; }
+            .border-gray-400 { border-color: #9ca3af !important; }
+            .border-blue-300 { border-color: #93c5fd !important; }
             .rounded-lg { border-radius: 0.5rem; }
+            .rounded { border-radius: 0.25rem; }
             .overflow-hidden { overflow: hidden; }
             
             /* Header styles */
-            .bg-gray-800 { background-color: #1f2937 !important; }
-            .text-white { color: white !important; }
             .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
             .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+            .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+            .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+            .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+            .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+            .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+            .px-4 { padding-left: 1rem; padding-right: 1rem; }
+            .p-3 { padding: 0.75rem; }
+            .p-4 { padding: 1rem; }
+            .p-6 { padding: 1.5rem; }
             .flex { display: flex; }
             .justify-between { justify-content: space-between; }
             .items-center { align-items: center; }
