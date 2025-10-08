@@ -33,8 +33,8 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
     printStyleEl.textContent = `
       @media print {
         @page {
-          size: A4;
-          margin: 10mm 15mm;
+          size: A4 portrait;
+          margin: 0;
         }
 
         * {
@@ -43,53 +43,82 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
           color-adjust: exact !important;
         }
 
-        /* Hide body children except dialog portal */
-        body > *:not([data-radix-portal]) {
-          display: none !important;
+        /* Hide everything first */
+        body * {
+          visibility: hidden !important;
         }
 
-        /* Hide dialog overlay and unnecessary UI */
+        /* Show only the invoice and its children */
+        .print-invoice-wrapper,
+        .print-invoice-wrapper * {
+          visibility: visible !important;
+        }
+
+        /* Hide dialog overlay, buttons, headers */
         [data-radix-dialog-overlay],
         button,
-        .no-print {
+        .no-print,
+        [role="dialog"] > div:first-child,
+        h2:has(+ p) {
           display: none !important;
+          visibility: hidden !important;
         }
 
-        /* Show and position invoice wrapper */
+        /* Position invoice for print */
         .print-invoice-wrapper {
-          position: fixed !important;
+          position: absolute !important;
           left: 0 !important;
           top: 0 !important;
           width: 100% !important;
           margin: 0 !important;
           padding: 0 !important;
           background: white !important;
+          border: none !important;
         }
 
         .invoice-container {
           width: 100% !important;
           max-width: 100% !important;
           margin: 0 !important;
+          padding: 0 !important;
         }
 
-        /* Page breaks */
+        /* Force page breaks between pages */
         .page-break {
           page-break-after: always !important;
           break-after: page !important;
+          display: block !important;
         }
 
-        /* Ensure images print */
+        /* Prevent content from splitting across pages */
+        .border-2 {
+          page-break-inside: avoid !important;
+        }
+
+        /* Ensure images and colors print */
         img {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           color-adjust: exact !important;
           max-width: 100% !important;
         }
+
+        /* Ensure borders and backgrounds print */
+        * {
+          box-shadow: none !important;
+        }
+
+        /* Remove margin between pages */
+        .mt-8 {
+          margin-top: 0 !important;
+        }
       }
     `;
 
-    // Trigger print directly
-    window.print();
+    // Small delay to ensure styles are applied
+    setTimeout(() => {
+      window.print();
+    }, 100);
   };
 
   if (!shipment) {
