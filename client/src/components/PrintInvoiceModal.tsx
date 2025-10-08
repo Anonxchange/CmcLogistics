@@ -47,9 +47,12 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
 
         body {
           margin: 0;
-          padding: 20px;
+          padding: 0;
           background: white !important;
           font-family: Arial, sans-serif;
+          width: 100%;
+          max-width: 1024px;
+          margin: 0 auto;
         }
 
         img {
@@ -58,21 +61,47 @@ export default function PrintInvoiceModal({ isOpen, onClose, shipment }: PrintIn
           color-adjust: exact !important;
         }
 
+        .page-break {
+          page-break-after: always;
+          break-after: page;
+        }
+
         @media print {
           @page {
             size: A4;
-            margin: 10mm;
+            margin: 10mm 15mm;
           }
 
           body {
             padding: 0;
-            margin: 0;
+            margin: 0 auto;
+            width: 1024px;
+            max-width: 1024px;
           }
 
           * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
             color-adjust: exact !important;
+          }
+
+          .page-break {
+            page-break-after: always;
+            break-after: page;
+          }
+
+          /* Ensure desktop layout in print */
+          .invoice-container {
+            width: 1024px !important;
+            max-width: 1024px !important;
+            margin: 0 auto !important;
+          }
+        }
+
+        @media screen {
+          body {
+            padding: 20px;
+            background: #f5f5f5 !important;
           }
         }
       </style>
