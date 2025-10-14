@@ -276,18 +276,32 @@ export default function TrackingPage() {
     // For demo purposes, we'll use approximate coordinates
     // In production, you'd use a geocoding service
     const getCoordinates = (address: string): [number, number] => {
-      if (address.toLowerCase().includes('lagos') || address.toLowerCase().includes('nigeria')) {
+      if (!address) return [-74.0060, 40.7128]; // Default to New York
+      
+      const addressLower = address.toLowerCase();
+      if (addressLower.includes('lagos') || addressLower.includes('nigeria')) {
         return [3.3792, 6.5244]; // Lagos, Nigeria
-      } else if (address.toLowerCase().includes('london') || address.toLowerCase().includes('uk')) {
+      } else if (addressLower.includes('london') || addressLower.includes('uk')) {
         return [-0.1276, 51.5074]; // London, UK
-      } else if (address.toLowerCase().includes('new york') || address.toLowerCase().includes('usa')) {
+      } else if (addressLower.includes('new york') || addressLower.includes('usa') || addressLower.includes('united states')) {
         return [-74.0060, 40.7128]; // New York, USA
-      } else if (address.toLowerCase().includes('dubai') || address.toLowerCase().includes('uae')) {
+      } else if (addressLower.includes('dubai') || addressLower.includes('uae')) {
         return [55.2708, 25.2048]; // Dubai, UAE
-      } else if (address.toLowerCase().includes('tokyo') || address.toLowerCase().includes('japan')) {
+      } else if (addressLower.includes('tokyo') || addressLower.includes('japan')) {
         return [139.6917, 35.6895]; // Tokyo, Japan
+      } else if (addressLower.includes('los angeles') || addressLower.includes('california')) {
+        return [-118.2437, 34.0522]; // Los Angeles, USA
+      } else if (addressLower.includes('chicago')) {
+        return [-87.6298, 41.8781]; // Chicago, USA
+      } else if (addressLower.includes('toronto') || addressLower.includes('canada')) {
+        return [-79.3832, 43.6532]; // Toronto, Canada
+      } else if (addressLower.includes('paris') || addressLower.includes('france')) {
+        return [2.3522, 48.8566]; // Paris, France
+      } else if (addressLower.includes('berlin') || addressLower.includes('germany')) {
+        return [13.4050, 52.5200]; // Berlin, Germany
       }
-      return [0, 0];
+      // Default to New York if no match
+      return [-74.0060, 40.7128];
     };
 
     const originCoords = getCoordinates(senderAddress);
@@ -299,8 +313,14 @@ export default function TrackingPage() {
     if (trackingData.shipment.stopoverCoordinates) {
       try {
         const coords = JSON.parse(trackingData.shipment.stopoverCoordinates);
-        if (coords.lat && coords.lng) {
+        // Validate coordinates are within valid ranges
+        if (coords.lat && coords.lng && 
+            typeof coords.lat === 'number' && typeof coords.lng === 'number' &&
+            coords.lat >= -90 && coords.lat <= 90 && 
+            coords.lng >= -180 && coords.lng <= 180) {
           stopoverCoords = [coords.lng, coords.lat];
+        } else {
+          console.warn('Invalid stopover coordinates:', coords);
         }
       } catch (e) {
         console.error('Error parsing stopover coordinates:', e);
