@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -51,6 +50,18 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();
 
+  const statusOptions = [
+    { value: 'pending', label: 'Pending' },
+    { value: 'picked_up', label: 'Picked Up' },
+    { value: 'in_transit', label: 'In Transit' },
+    { value: 'stopover', label: 'Stopover Point' },
+    { value: 'held_by_customs', label: 'Held by Customs' },
+    { value: 'out_for_delivery', label: 'Out for Delivery' },
+    { value: 'delivered', label: 'Delivered' },
+    { value: 'delayed', label: 'Delayed' },
+    { value: 'failed_delivery', label: 'Failed Delivery' }
+  ];
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -86,16 +97,19 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
       const deliveredShipments = shipmentsData?.filter(s => s.status === 'delivered').length || 0;
       const inTransitShipments = shipmentsData?.filter(s => s.status === 'in_transit').length || 0;
       const pendingShipments = shipmentsData?.filter(s => s.status === 'pending').length || 0;
+      const stopoverShipments = shipmentsData?.filter(s => s.status === 'stopover').length || 0;
+
 
       const statsData = {
         totalShipments,
         deliveredShipments,
         inTransitShipments,
         pendingShipments,
+        stopoverShipments,
         totalCarPurchases: carPurchasesData?.length || 0,
         totalQuotes: quotesData?.length || 0
       };
-        
+
       setStats(statsData);
       setShipments(shipmentsData || []);
       setCarPurchases(carPurchasesData || []);
@@ -188,7 +202,8 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
       status: shipment.status,
       estimatedDelivery: shipment.estimated_delivery,
       cost: shipment.cost,
-      clearance_cost: shipment.clearance_cost
+      clearance_cost: shipment.clearance_cost,
+      stopover: shipment.stopover,
     };
     setSelectedShipment(transformedShipment);
     setIsPrintModalOpen(true);
@@ -273,7 +288,7 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
                 Welcome, {admin.username}
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-2 sm:space-x-4">
               <Button
                 onClick={() => setIsCreateModalOpen(true)}
@@ -375,6 +390,7 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
                 onPrintInvoice={handlePrintInvoice}
                 onSendEmail={handleSendEmail}
                 onDelete={handleDeleteShipment}
+                statusOptions={statusOptions} 
               />
             </div>
           )}
@@ -424,7 +440,7 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
                 <h2 className="text-2xl font-bold">Car Purchase Requests</h2>
                 <p className="text-muted-foreground">View and manage car purchase quote requests</p>
               </div>
-              
+
               {carPurchases.length === 0 ? (
                 <Card>
                   <CardContent className="p-8">
@@ -493,7 +509,7 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
                 <h2 className="text-2xl font-bold">Shipping Quote Requests</h2>
                 <p className="text-muted-foreground">View and manage shipping quote requests</p>
               </div>
-              
+
               {quotes.length === 0 ? (
                 <Card>
                   <CardContent className="p-8">
@@ -573,6 +589,7 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
         onSuccess={handleTrackingUpdate}
         shipment={selectedShipment}
         adminId={admin.id}
+        statusOptions={statusOptions} 
       />
 
       <SendEmailModal
@@ -592,6 +609,7 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
         }}
         onSuccess={handleEditSuccess}
         shipment={selectedShipment}
+        statusOptions={statusOptions} 
       />
 
       <PrintInvoiceModal
