@@ -293,6 +293,19 @@ export default function TrackingPage() {
     const originCoords = getCoordinates(senderAddress);
     const destinationCoords = getCoordinates(recipientAddress);
     const currentCoords = currentLocation ? getCoordinates(currentLocation) : null;
+    
+    // Parse stopover coordinates if available
+    let stopoverCoords: [number, number] | null = null;
+    if (trackingData.shipment.stopoverCoordinates) {
+      try {
+        const coords = JSON.parse(trackingData.shipment.stopoverCoordinates);
+        if (coords.lat && coords.lng) {
+          stopoverCoords = [coords.lng, coords.lat];
+        }
+      } catch (e) {
+        console.error('Error parsing stopover coordinates:', e);
+      }
+    }
 
     // Clear existing markers and layers
     const existingMarkers = document.getElementsByClassName('mapboxgl-marker');
@@ -321,6 +334,27 @@ export default function TrackingPage() {
       .setLngLat(originCoords)
       .setPopup(new mapboxgl.Popup().setHTML(`<strong>Origin</strong><br/>${senderAddress.split(',')[0]}`))
       .addTo(map.current);
+
+    // Add stopover marker if stopover exists
+    if (stopoverCoords) {
+      const stopoverEl = document.createElement('div');
+      stopoverEl.className = 'custom-marker';
+      stopoverEl.style.width = '32px';
+      stopoverEl.style.height = '32px';
+      stopoverEl.style.backgroundColor = '#f59e0b';
+      stopoverEl.style.borderRadius = '50%';
+      stopoverEl.style.border = '3px solid white';
+      stopoverEl.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+
+      const stopoverLabel = trackingData.shipment.stopoverCity && trackingData.shipment.stopoverCountry
+        ? `${trackingData.shipment.stopoverCity}, ${trackingData.shipment.stopoverCountry}`
+        : 'Stopover Point';
+
+      new mapboxgl.Marker(stopoverEl)
+        .setLngLat(stopoverCoords)
+        .setPopup(new mapboxgl.Popup().setHTML(`<strong>Stopover</strong><br/>${stopoverLabel}`))
+        .addTo(map.current);
+    }
 
     // Add destination marker
     const destEl = document.createElement('div');
@@ -359,9 +393,18 @@ export default function TrackingPage() {
     map.current.on('load', () => {
       if (!map.current) return;
 
-      const routeCoordinates = currentCoords && trackingData.shipment.status !== 'delivered'
-        ? [originCoords, currentCoords, destinationCoords]
-        : [originCoords, destinationCoords];
+      // Build route coordinates: origin → stopover (if exists) → current (if exists) → destination
+      const routeCoordinates: [number, number][] = [originCoords];
+      
+      if (stopoverCoords) {
+        routeCoordinates.push(stopoverCoords);
+      }
+      
+      if (currentCoords && trackingData.shipment.status !== 'delivered') {
+        routeCoordinates.push(currentCoords);
+      }
+      
+      routeCoordinates.push(destinationCoords);
 
       map.current.addSource('route', {
         type: 'geojson',
@@ -453,7 +496,10 @@ export default function TrackingPage() {
           estimatedDelivery: shipment.estimated_delivery,
           currentLocation: updates && updates.length > 0 ? updates[0].location : null,
           cost: shipment.cost,
-          clearance_cost: shipment.clearance_cost
+          clearance_cost: shipment.clearance_cost,
+          stopoverCountry: shipment.stopover_country,
+          stopoverCity: shipment.stopover_city,
+          stopoverCoordinates: shipment.stopover_coordinates
         },
         trackingUpdates: updates || []
       };
@@ -481,6 +527,7 @@ export default function TrackingPage() {
       case 'pending': return 'bg-yellow-500';
       case 'picked_up': return 'bg-orange-500';
       case 'in_transit': return 'bg-blue-500';
+      case 'stopover': return 'bg-cyan-500';
       case 'held_by_customs': return 'bg-amber-600';
       case 'out_for_delivery': return 'bg-purple-500';
       case 'delivered': return 'bg-green-500';
@@ -892,6 +939,63 @@ export default function TrackingPage() {
               </CardContent>
             </Card>
 
+            {/* Stopover Information Section - Only shown if stopover exists */}
+            {(trackingData.shipment.stopoverCountry || trackingData.shipment.stopoverCity) && (
+              <Card className="border-l-4 border-l-cyan-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-cyan-500" />
+                    Stopover Point
+                  </CardTitle>
+                  <CardDescription>
+                    Your shipment will pass through this intermediate location
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-cyan-50 dark:bg-cyan-950 rounded-lg p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-full bg-cyan-500 flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-foreground mb-2">
+                          {trackingData.shipment.stopoverCity && trackingData.shipment.stopoverCountry
+                            ? `${trackingData.shipment.stopoverCity}, ${trackingData.shipment.stopoverCountry}`
+                            : trackingData.shipment.stopoverCity || trackingData.shipment.stopoverCountry}
+                        </h3>
+                        <div className="space-y-2">
+                          {trackingData.shipment.stopoverCity && (
+                            <div className="flex items-center gap-2 text-sm">
+                              <div className="w-2 h-2 rounded-full bg-cyan-500"></div>
+                              <span className="text-muted-foreground">City:</span>
+                              <span className="font-medium">{trackingData.shipment.stopoverCity}</span>
+                            </div>
+                          )}
+                          {trackingData.shipment.stopoverCountry && (
+                            <div className="flex items-center gap-2 text-sm">
+                              <div className="w-2 h-2 rounded-full bg-cyan-500"></div>
+                              <span className="text-muted-foreground">Country:</span>
+                              <span className="font-medium">{trackingData.shipment.stopoverCountry}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2 text-sm mt-3">
+                            <Badge variant="outline" className="bg-cyan-100 text-cyan-700 border-cyan-300">
+                              {trackingData.shipment.status === 'stopover' ? 'Currently at Stopover' : 'Stopover Planned'}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-4 p-3 bg-white dark:bg-gray-900 rounded-md border border-cyan-200 dark:border-cyan-800">
+                      <p className="text-sm text-muted-foreground">
+                        <strong>Note:</strong> Your shipment will be processed at this stopover location as part of its journey to the final destination.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Tracking Timeline */}
             <Card>
               <CardHeader>
@@ -932,14 +1036,31 @@ export default function TrackingPage() {
                   <div className="space-y-6">
                     {/* Generate complete process steps */}
                     {(() => {
-                      const completeProcess = [
+                      const baseProcess = [
                         { status: 'pending', title: 'Order Created', description: 'Your shipping order has been created and is being processed', defaultTime: '2024-01-15 09:00 AM' },
                         { status: 'picked_up', title: 'Package Picked Up', description: 'Your package has been collected from the sender', defaultTime: '2024-01-15 02:30 PM' },
-                        { status: 'in_transit', title: 'In Transit', description: 'Package is on its way to the destination', defaultTime: '2024-01-16 10:15 AM' },
+                        { status: 'in_transit', title: 'In Transit', description: 'Package is on its way to the destination', defaultTime: '2024-01-16 10:15 AM' }
+                      ];
+                      
+                      // Add stopover step if stopover is configured
+                      const hasStopover = trackingData.shipment.stopoverCountry && trackingData.shipment.stopoverCity;
+                      if (hasStopover) {
+                        baseProcess.push({
+                          status: 'stopover',
+                          title: 'Stopover Point',
+                          description: `Package at stopover: ${trackingData.shipment.stopoverCity}, ${trackingData.shipment.stopoverCountry}`,
+                          defaultTime: '2024-01-16 03:00 PM'
+                        });
+                      }
+                      
+                      // Add remaining steps
+                      baseProcess.push(
                         { status: 'held_by_customs', title: 'Customs Processing', description: 'Package is being processed by customs officials for inspection', defaultTime: '2024-01-16 06:30 PM' },
                         { status: 'out_for_delivery', title: 'Out for Delivery', description: 'Package is out for delivery to the final destination', defaultTime: '2024-01-17 08:45 AM' },
                         { status: 'delivered', title: 'Delivered', description: 'Package has been successfully delivered', defaultTime: '2024-01-17 03:20 PM' }
-                      ];
+                      );
+                      
+                      const completeProcess = baseProcess;
 
                       // Map status to icon based on service type for in_transit
                       const getSpecificIcon = (status: string) => {
@@ -954,6 +1075,7 @@ export default function TrackingPage() {
                         switch (status) {
                           case 'pending': return Clock;
                           case 'picked_up': return Package;
+                          case 'stopover': return MapPin;
                           case 'held_by_customs': return AlertCircle;
                           case 'out_for_delivery': return MapPin;
                           case 'delivered': return CheckCircle;
