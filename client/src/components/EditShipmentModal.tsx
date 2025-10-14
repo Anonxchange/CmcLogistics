@@ -31,13 +31,18 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
     estimatedDelivery: '',
     cost: '',
     clearanceCost: '',
-    status: ''
+    status: '',
+    stopoverCountry: '',
+    stopoverCity: '',
+    stopoverLat: '',
+    stopoverLng: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     if (shipment) {
+      const coords = shipment.stopover_coordinates ? JSON.parse(shipment.stopover_coordinates) : null;
       setFormData({
         senderName: shipment.sender_name || '',
         senderAddress: shipment.sender_address || '',
@@ -53,7 +58,11 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
         estimatedDelivery: shipment.estimated_delivery ? new Date(shipment.estimated_delivery).toISOString().slice(0, 16) : '',
         cost: shipment.cost?.toString() || '',
         clearanceCost: shipment.clearance_cost?.toString() || '',
-        status: shipment.status || ''
+        status: shipment.status || '',
+        stopoverCountry: shipment.stopover_country || '',
+        stopoverCity: shipment.stopover_city || '',
+        stopoverLat: coords?.lat?.toString() || '',
+        stopoverLng: coords?.lng?.toString() || ''
       });
     }
   }, [shipment]);
@@ -69,6 +78,7 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
     { value: 'pending', label: 'Pending' },
     { value: 'picked_up', label: 'Picked Up' },
     { value: 'in_transit', label: 'In Transit' },
+    { value: 'stopover', label: 'Stopover Point' },
     { value: 'held_by_customs', label: 'Held by Customs' },
     { value: 'out_for_delivery', label: 'Out for Delivery' },
     { value: 'delivered', label: 'Delivered' },
@@ -85,6 +95,10 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
     setIsLoading(true);
 
     try {
+      const stopoverCoords = (formData.stopoverLat && formData.stopoverLng) 
+        ? JSON.stringify({ lat: parseFloat(formData.stopoverLat), lng: parseFloat(formData.stopoverLng) })
+        : null;
+
       const updatedData = {
         sender_name: formData.senderName,
         sender_email: formData.senderEmail,
@@ -101,6 +115,9 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
         estimated_delivery: formData.estimatedDelivery || null,
         cost: formData.cost ? parseFloat(formData.cost) : null,
         clearance_cost: formData.clearanceCost ? parseFloat(formData.clearanceCost) : null,
+        stopover_country: formData.stopoverCountry || null,
+        stopover_city: formData.stopoverCity || null,
+        stopover_coordinates: stopoverCoords,
       };
 
       const { error } = await supabase
@@ -223,6 +240,78 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
                 value={formData.recipientEmail}
                 onChange={(e) => handleInputChange('recipientEmail', e.target.value)}
               />
+            </div>
+          </div>
+
+          {/* Stopover Information (Optional) */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold">Stopover Information (Optional)</h3>
+                <p className="text-sm text-muted-foreground">Add a stopover location to track multi-leg shipments</p>
+              </div>
+              {(formData.stopoverCountry || formData.stopoverCity || formData.stopoverLat || formData.stopoverLng) && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      stopoverCountry: '',
+                      stopoverCity: '',
+                      stopoverLat: '',
+                      stopoverLng: ''
+                    }));
+                  }}
+                >
+                  Clear Stopover
+                </Button>
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="stopoverCountry">Stopover Country</Label>
+                <Input
+                  id="stopoverCountry"
+                  placeholder="e.g., United States"
+                  value={formData.stopoverCountry}
+                  onChange={(e) => handleInputChange('stopoverCountry', e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="stopoverCity">Stopover City</Label>
+                <Input
+                  id="stopoverCity"
+                  placeholder="e.g., New York"
+                  value={formData.stopoverCity}
+                  onChange={(e) => handleInputChange('stopoverCity', e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="stopoverLat">Latitude (for map display)</Label>
+                <Input
+                  id="stopoverLat"
+                  type="number"
+                  step="0.000001"
+                  placeholder="e.g., 40.7128"
+                  value={formData.stopoverLat}
+                  onChange={(e) => handleInputChange('stopoverLat', e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="stopoverLng">Longitude (for map display)</Label>
+                <Input
+                  id="stopoverLng"
+                  type="number"
+                  step="0.000001"
+                  placeholder="e.g., -74.0060"
+                  value={formData.stopoverLng}
+                  onChange={(e) => handleInputChange('stopoverLng', e.target.value)}
+                />
+              </div>
             </div>
           </div>
 
