@@ -41,6 +41,7 @@ export default function TrackingUpdatesModal({ isOpen, onClose, onSuccess, shipm
     { value: 'pending', label: 'Pending' },
     { value: 'picked_up', label: 'Picked Up' },
     { value: 'in_transit', label: 'In Transit' },
+    { value: 'stopover', label: 'Stopover Point' },
     { value: 'held_by_customs', label: 'Held by Customs' },
     { value: 'out_for_delivery', label: 'Out for Delivery' },
     { value: 'delivered', label: 'Delivered' },
@@ -132,6 +133,7 @@ export default function TrackingUpdatesModal({ isOpen, onClose, onSuccess, shipm
       case 'pending': return 'bg-yellow-500';
       case 'picked_up': return 'bg-orange-500';
       case 'in_transit': return 'bg-blue-500';
+      case 'stopover': return 'bg-cyan-500';
       case 'held_by_customs': return 'bg-amber-600';
       case 'out_for_delivery': return 'bg-purple-500';
       case 'delivered': return 'bg-green-500';
