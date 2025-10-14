@@ -32,7 +32,11 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
     currentLocation: '',
     estimatedDelivery: '',
     cost: '',
-    clearanceCost: ''
+    clearanceCost: '',
+    stopoverCountry: '',
+    stopoverCity: '',
+    stopoverLat: '',
+    stopoverLng: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -62,6 +66,10 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
     try {
       const trackingNumber = generateTrackingNumber();
 
+      const stopoverCoords = (formData.stopoverLat && formData.stopoverLng) 
+        ? JSON.stringify({ lat: parseFloat(formData.stopoverLat), lng: parseFloat(formData.stopoverLng) })
+        : null;
+
       const shipmentData = {
         tracking_number: trackingNumber,
         sender_name: formData.senderName,
@@ -80,6 +88,9 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
         estimated_delivery: formData.estimatedDelivery || null,
         cost: formData.cost ? parseFloat(formData.cost) : null,
         clearance_cost: formData.clearanceCost ? parseFloat(formData.clearanceCost) : null,
+        stopover_country: formData.stopoverCountry || null,
+        stopover_city: formData.stopoverCity || null,
+        stopover_coordinates: stopoverCoords,
       };
 
       const { data: newShipment, error: shipmentError } = await supabase
@@ -127,7 +138,11 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
         currentLocation: '',
         estimatedDelivery: '',
         cost: '',
-        clearanceCost: ''
+        clearanceCost: '',
+        stopoverCountry: '',
+        stopoverCity: '',
+        stopoverLat: '',
+        stopoverLng: ''
       });
       onSuccess();
     } catch (error) {
@@ -242,6 +257,60 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
                 onChange={(e) => handleInputChange('recipientEmail', e.target.value)}
                 data-testid="input-recipient-email"
               />
+            </div>
+          </div>
+
+          {/* Stopover Information (Optional) */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Stopover Information (Optional)</h3>
+            <p className="text-sm text-muted-foreground">Add a stopover location to track multi-leg shipments</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="stopoverCountry">Stopover Country</Label>
+                <Input
+                  id="stopoverCountry"
+                  placeholder="e.g., United States"
+                  value={formData.stopoverCountry}
+                  onChange={(e) => handleInputChange('stopoverCountry', e.target.value)}
+                  data-testid="input-stopover-country"
+                />
+              </div>
+              <div>
+                <Label htmlFor="stopoverCity">Stopover City</Label>
+                <Input
+                  id="stopoverCity"
+                  placeholder="e.g., New York"
+                  value={formData.stopoverCity}
+                  onChange={(e) => handleInputChange('stopoverCity', e.target.value)}
+                  data-testid="input-stopover-city"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="stopoverLat">Latitude (for map display)</Label>
+                <Input
+                  id="stopoverLat"
+                  type="number"
+                  step="0.000001"
+                  placeholder="e.g., 40.7128"
+                  value={formData.stopoverLat}
+                  onChange={(e) => handleInputChange('stopoverLat', e.target.value)}
+                  data-testid="input-stopover-lat"
+                />
+              </div>
+              <div>
+                <Label htmlFor="stopoverLng">Longitude (for map display)</Label>
+                <Input
+                  id="stopoverLng"
+                  type="number"
+                  step="0.000001"
+                  placeholder="e.g., -74.0060"
+                  value={formData.stopoverLng}
+                  onChange={(e) => handleInputChange('stopoverLng', e.target.value)}
+                  data-testid="input-stopover-lng"
+                />
+              </div>
             </div>
           </div>
 
