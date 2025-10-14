@@ -36,6 +36,9 @@ export const shipments = pgTable('shipments', {
   estimatedDelivery: timestamp('estimated_delivery'),
   actualDelivery: timestamp('actual_delivery'),
   cost: decimal('cost', { precision: 10, scale: 2 }),
+  stopoverCountry: text('stopover_country'),
+  stopoverCity: text('stopover_city'),
+  stopoverCoordinates: text('stopover_coordinates'), // JSON string for lat, lng
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
