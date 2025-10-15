@@ -33,6 +33,7 @@ export const shipments = pgTable('shipments', {
   weight: decimal('weight', { precision: 10, scale: 2 }),
   dimensions: text('dimensions'), // JSON string for length, width, height
   status: text('status').notNull().default('pending'), // 'pending', 'in_transit', 'delivered', 'exception'
+  currentLocation: text('current_location'),
   estimatedDelivery: timestamp('estimated_delivery'),
   actualDelivery: timestamp('actual_delivery'),
   cost: decimal('cost', { precision: 10, scale: 2 }),
