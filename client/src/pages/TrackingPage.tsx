@@ -268,45 +268,83 @@ export default function TrackingPage() {
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
     }
 
-    // Parse addresses to get coordinates (simplified version)
+    // Parse addresses to get coordinates
     const senderAddress = trackingData.shipment.senderAddress || '';
     const recipientAddress = trackingData.shipment.recipientAddress || '';
-    const currentLocation = trackingData.shipment.currentLocation || '';
-
-    // For demo purposes, we'll use approximate coordinates
-    // In production, you'd use a geocoding service
-    const getCoordinates = (address: string): [number, number] => {
-      if (!address) return [-74.0060, 40.7128]; // Default to New York
+    
+    // Get coordinates from tracking updates if available
+    const getCoordinatesFromLocation = (location: string): [number, number] | null => {
+      if (!location) return null;
       
-      const addressLower = address.toLowerCase();
-      if (addressLower.includes('lagos') || addressLower.includes('nigeria')) {
+      const locationLower = location.toLowerCase();
+      // City-specific coordinates
+      if (locationLower.includes('lagos') || locationLower.includes('nigeria')) {
         return [3.3792, 6.5244]; // Lagos, Nigeria
-      } else if (addressLower.includes('london') || addressLower.includes('uk')) {
+      } else if (locationLower.includes('london') || locationLower.includes('uk') || locationLower.includes('united kingdom')) {
         return [-0.1276, 51.5074]; // London, UK
-      } else if (addressLower.includes('new york') || addressLower.includes('usa') || addressLower.includes('united states')) {
+      } else if (locationLower.includes('new york') || locationLower.includes('nyc')) {
         return [-74.0060, 40.7128]; // New York, USA
-      } else if (addressLower.includes('dubai') || addressLower.includes('uae')) {
+      } else if (locationLower.includes('dubai') || locationLower.includes('uae')) {
         return [55.2708, 25.2048]; // Dubai, UAE
-      } else if (addressLower.includes('tokyo') || addressLower.includes('japan')) {
+      } else if (locationLower.includes('tokyo') || locationLower.includes('japan')) {
         return [139.6917, 35.6895]; // Tokyo, Japan
-      } else if (addressLower.includes('los angeles') || addressLower.includes('california')) {
+      } else if (locationLower.includes('los angeles') || locationLower.includes('california')) {
         return [-118.2437, 34.0522]; // Los Angeles, USA
-      } else if (addressLower.includes('chicago')) {
+      } else if (locationLower.includes('chicago')) {
         return [-87.6298, 41.8781]; // Chicago, USA
-      } else if (addressLower.includes('toronto') || addressLower.includes('canada')) {
+      } else if (locationLower.includes('toronto') || locationLower.includes('canada')) {
         return [-79.3832, 43.6532]; // Toronto, Canada
-      } else if (addressLower.includes('paris') || addressLower.includes('france')) {
+      } else if (locationLower.includes('paris') || locationLower.includes('france')) {
         return [2.3522, 48.8566]; // Paris, France
-      } else if (addressLower.includes('berlin') || addressLower.includes('germany')) {
+      } else if (locationLower.includes('berlin') || locationLower.includes('germany')) {
         return [13.4050, 52.5200]; // Berlin, Germany
+      } else if (locationLower.includes('miami') || locationLower.includes('florida')) {
+        return [-80.1918, 25.7617]; // Miami, USA
+      } else if (locationLower.includes('sydney') || locationLower.includes('australia')) {
+        return [151.2093, -33.8688]; // Sydney, Australia
+      } else if (locationLower.includes('singapore')) {
+        return [103.8198, 1.3521]; // Singapore
+      } else if (locationLower.includes('hong kong')) {
+        return [114.1694, 22.3193]; // Hong Kong
+      } else if (locationLower.includes('mumbai') || locationLower.includes('india')) {
+        return [72.8777, 19.0760]; // Mumbai, India
+      } else if (locationLower.includes('havana') || locationLower.includes('cuba')) {
+        return [-82.3666, 23.1136]; // Havana, Cuba
       }
-      // Default to New York if no match
-      return [-74.0060, 40.7128];
+      return null;
     };
 
-    const originCoords = getCoordinates(senderAddress);
-    const destinationCoords = getCoordinates(recipientAddress);
-    const currentCoords = currentLocation ? getCoordinates(currentLocation) : null;
+    // Use tracking updates to get actual locations
+    const originCoords = getCoordinatesFromLocation(senderAddress) || [-74.0060, 40.7128]; // Default origin
+    const destinationCoords = getCoordinatesFromLocation(recipientAddress) || [0.0, 20.0]; // Default destination
+    
+    // Get current location from the most recent tracking update
+    let currentCoords: [number, number] | null = null;
+    let currentLocation = '';
+    if (trackingData.trackingUpdates && trackingData.trackingUpdates.length > 0) {
+      const latestUpdate = trackingData.trackingUpdates[0];
+      currentLocation = latestUpdate.location;
+      currentCoords = getCoordinatesFromLocation(latestUpdate.location);
+      
+      // If no match found, try to interpolate between origin and destination based on status
+      if (!currentCoords && trackingData.shipment.status !== 'delivered') {
+        const statusProgress: { [key: string]: number } = {
+          'pending': 0.1,
+          'picked_up': 0.2,
+          'in_transit': 0.5,
+          'stopover': 0.6,
+          'held_by_customs': 0.7,
+          'out_for_delivery': 0.9
+        };
+        const progress = statusProgress[trackingData.shipment.status] || 0.5;
+        
+        // Interpolate coordinates between origin and destination
+        currentCoords = [
+          originCoords[0] + (destinationCoords[0] - originCoords[0]) * progress,
+          originCoords[1] + (destinationCoords[1] - originCoords[1]) * progress
+        ];
+      }
+    }
     
     // Parse stopover coordinates if available
     let stopoverCoords: [number, number] | null = null;
@@ -333,38 +371,69 @@ export default function TrackingPage() {
       existingMarkers[0].remove();
     }
 
-    if (map.current.getLayer('route')) {
-      map.current.removeLayer('route');
-    }
-    if (map.current.getSource('route')) {
-      map.current.removeSource('route');
-    }
+    // Remove all route layers and sources
+    const layersToRemove = ['route', 'completed-route', 'completed-route-bg', 'remaining-route'];
+    const sourcesToRemove = ['route', 'completed-route', 'remaining-route'];
+    
+    layersToRemove.forEach(layerId => {
+      if (map.current?.getLayer(layerId)) {
+        map.current.removeLayer(layerId);
+      }
+    });
+    
+    sourcesToRemove.forEach(sourceId => {
+      if (map.current?.getSource(sourceId)) {
+        map.current.removeSource(sourceId);
+      }
+    });
 
-    // Add origin marker
+    // Add origin marker with enhanced styling
     const originEl = document.createElement('div');
     originEl.className = 'custom-marker';
-    originEl.style.width = '32px';
-    originEl.style.height = '32px';
-    originEl.style.backgroundColor = '#22c55e';
+    originEl.style.width = '36px';
+    originEl.style.height = '36px';
+    originEl.style.backgroundColor = '#10b981';
     originEl.style.borderRadius = '50%';
-    originEl.style.border = '3px solid white';
-    originEl.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+    originEl.style.border = '4px solid white';
+    originEl.style.boxShadow = '0 4px 16px rgba(16, 185, 129, 0.5), 0 2px 8px rgba(0,0,0,0.2)';
+    originEl.style.position = 'relative';
+    originEl.style.transition = 'transform 0.3s ease';
+    originEl.style.display = 'flex';
+    originEl.style.alignItems = 'center';
+    originEl.style.justifyContent = 'center';
+    originEl.innerHTML = `
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+      </svg>
+    `;
 
     new mapboxgl.Marker(originEl)
       .setLngLat(originCoords)
-      .setPopup(new mapboxgl.Popup().setHTML(`<strong>Origin</strong><br/>${senderAddress.split(',')[0]}`))
+      .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`<strong style="color: #10b981;">Origin</strong><br/>${senderAddress.split(',')[0]}`))
       .addTo(map.current);
 
     // Add stopover marker if stopover exists
     if (stopoverCoords) {
       const stopoverEl = document.createElement('div');
       stopoverEl.className = 'custom-marker';
-      stopoverEl.style.width = '32px';
-      stopoverEl.style.height = '32px';
+      stopoverEl.style.width = '36px';
+      stopoverEl.style.height = '36px';
       stopoverEl.style.backgroundColor = '#f59e0b';
       stopoverEl.style.borderRadius = '50%';
-      stopoverEl.style.border = '3px solid white';
-      stopoverEl.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+      stopoverEl.style.border = '4px solid white';
+      stopoverEl.style.boxShadow = '0 4px 16px rgba(245, 158, 11, 0.5), 0 2px 8px rgba(0,0,0,0.2)';
+      stopoverEl.style.transition = 'transform 0.3s ease';
+      stopoverEl.style.display = 'flex';
+      stopoverEl.style.alignItems = 'center';
+      stopoverEl.style.justifyContent = 'center';
+      stopoverEl.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          <circle cx="12" cy="12" r="2"></circle>
+        </svg>
+      `;
 
       const stopoverLabel = trackingData.shipment.stopoverCity && trackingData.shipment.stopoverCountry
         ? `${trackingData.shipment.stopoverCity}, ${trackingData.shipment.stopoverCountry}`
@@ -372,44 +441,98 @@ export default function TrackingPage() {
 
       new mapboxgl.Marker(stopoverEl)
         .setLngLat(stopoverCoords)
-        .setPopup(new mapboxgl.Popup().setHTML(`<strong>Stopover</strong><br/>${stopoverLabel}`))
+        .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`<strong style="color: #f59e0b;">Stopover</strong><br/>${stopoverLabel}`))
         .addTo(map.current);
     }
 
     // Add destination marker
     const destEl = document.createElement('div');
     destEl.className = 'custom-marker';
-    destEl.style.width = '32px';
-    destEl.style.height = '32px';
-    destEl.style.backgroundColor = trackingData.shipment.status === 'delivered' ? '#22c55e' : '#a855f7';
+    const isDelivered = trackingData.shipment.status === 'delivered';
+    destEl.style.width = '36px';
+    destEl.style.height = '36px';
+    destEl.style.backgroundColor = isDelivered ? '#10b981' : '#8b5cf6';
     destEl.style.borderRadius = '50%';
-    destEl.style.border = '3px solid white';
-    destEl.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+    destEl.style.border = '4px solid white';
+    destEl.style.boxShadow = isDelivered 
+      ? '0 4px 16px rgba(16, 185, 129, 0.5), 0 2px 8px rgba(0,0,0,0.2)' 
+      : '0 4px 16px rgba(139, 92, 246, 0.5), 0 2px 8px rgba(0,0,0,0.2)';
+    destEl.style.transition = 'transform 0.3s ease';
+    destEl.style.display = 'flex';
+    destEl.style.alignItems = 'center';
+    destEl.style.justifyContent = 'center';
+    destEl.innerHTML = isDelivered 
+      ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>`
+      : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>`;
 
     new mapboxgl.Marker(destEl)
       .setLngLat(destinationCoords)
-      .setPopup(new mapboxgl.Popup().setHTML(`<strong>${trackingData.shipment.status === 'delivered' ? 'Delivered' : 'Destination'}</strong><br/>${recipientAddress.split(',')[0]}`))
+      .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`<strong style="color: ${isDelivered ? '#10b981' : '#8b5cf6'};">${isDelivered ? 'Delivered' : 'Destination'}</strong><br/>${recipientAddress.split(',')[0]}`))
       .addTo(map.current);
 
     // Add current location marker if available
     if (currentCoords && trackingData.shipment.status !== 'delivered') {
       const currentEl = document.createElement('div');
       currentEl.className = 'custom-marker pulse-marker';
-      currentEl.style.width = '32px';
-      currentEl.style.height = '32px';
+      currentEl.style.width = '40px';
+      currentEl.style.height = '40px';
       currentEl.style.backgroundColor = '#3b82f6';
       currentEl.style.borderRadius = '50%';
-      currentEl.style.border = '3px solid white';
-      currentEl.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
-      currentEl.style.animation = 'pulse 2s infinite';
+      currentEl.style.border = '4px solid white';
+      currentEl.style.transition = 'transform 0.3s ease';
+      currentEl.style.display = 'flex';
+      currentEl.style.alignItems = 'center';
+      currentEl.style.justifyContent = 'center';
+      
+      // Determine icon based on service type
+      const serviceType = trackingData.shipment.serviceType;
+      let iconSvg = '';
+      
+      if (serviceType === 'air') {
+        // Plane icon
+        iconSvg = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path>
+          </svg>
+        `;
+      } else if (serviceType === 'sea') {
+        // Ship icon
+        iconSvg = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1 .6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+            <path d="M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.9.94 5.34 2.81 7.76"></path>
+            <path d="M19 13V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v6"></path>
+            <path d="M12 10v4"></path>
+            <path d="M12 2v3"></path>
+          </svg>
+        `;
+      } else {
+        // Truck icon (default for road transport)
+        iconSvg = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="3" width="15" height="13"></rect>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+          </svg>
+        `;
+      }
+      
+      currentEl.innerHTML = iconSvg;
 
       new mapboxgl.Marker(currentEl)
         .setLngLat(currentCoords)
-        .setPopup(new mapboxgl.Popup().setHTML(`<strong>Current Location</strong><br/>${currentLocation}`))
+        .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`<strong style="color: #3b82f6;">Current Location</strong><br/>${currentLocation}`))
         .addTo(map.current);
     }
 
-    // Draw route line
+    // Draw route line with FedEx-style effects
     map.current.on('load', () => {
       if (!map.current) return;
 
@@ -420,43 +543,121 @@ export default function TrackingPage() {
         routeCoordinates.push(stopoverCoords);
       }
       
-      if (currentCoords && trackingData.shipment.status !== 'delivered') {
-        routeCoordinates.push(currentCoords);
-      }
+      // Determine the current position in route
+      let completedRouteCoords: [number, number][] = [originCoords];
+      let remainingRouteCoords: [number, number][] = [];
       
-      routeCoordinates.push(destinationCoords);
+      if (trackingData.shipment.status === 'delivered') {
+        completedRouteCoords = routeCoordinates.concat([destinationCoords]);
+      } else if (currentCoords) {
+        completedRouteCoords.push(...(stopoverCoords ? [stopoverCoords] : []), currentCoords);
+        remainingRouteCoords = [currentCoords, destinationCoords];
+      } else {
+        remainingRouteCoords = stopoverCoords 
+          ? [originCoords, stopoverCoords, destinationCoords]
+          : [originCoords, destinationCoords];
+        completedRouteCoords = [originCoords];
+      }
 
-      map.current.addSource('route', {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'LineString',
-            coordinates: routeCoordinates
+      // Add completed route (solid green line)
+      if (completedRouteCoords.length > 1) {
+        map.current.addSource('completed-route', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: completedRouteCoords
+            }
           }
-        }
-      });
+        });
 
-      map.current.addLayer({
-        id: 'route',
-        type: 'line',
-        source: 'route',
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round'
-        },
-        paint: {
-          'line-color': '#3b82f6',
-          'line-width': 3,
-          'line-dasharray': [2, 2]
-        }
-      });
+        // Background line (wider, darker)
+        map.current.addLayer({
+          id: 'completed-route-bg',
+          type: 'line',
+          source: 'completed-route',
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+          },
+          paint: {
+            'line-color': '#065f46',
+            'line-width': 6,
+            'line-opacity': 0.4
+          }
+        });
+
+        // Main line (green, solid)
+        map.current.addLayer({
+          id: 'completed-route',
+          type: 'line',
+          source: 'completed-route',
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+          },
+          paint: {
+            'line-color': '#10b981',
+            'line-width': 4
+          }
+        });
+      }
+
+      // Add remaining route (dashed blue/purple line)
+      if (remainingRouteCoords.length > 1) {
+        map.current.addSource('remaining-route', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: remainingRouteCoords
+            }
+          }
+        });
+
+        // Animated dashed line
+        map.current.addLayer({
+          id: 'remaining-route',
+          type: 'line',
+          source: 'remaining-route',
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+          },
+          paint: {
+            'line-color': '#8b5cf6',
+            'line-width': 4,
+            'line-dasharray': [2, 3],
+            'line-opacity': 0.8
+          }
+        });
+
+        // Animate the dashed line
+        let dashOffset = 0;
+        const animateDash = () => {
+          if (!map.current || !map.current.getLayer('remaining-route')) return;
+          
+          dashOffset = (dashOffset + 0.1) % 5;
+          map.current.setPaintProperty('remaining-route', 'line-dasharray', [2, 3]);
+          
+          requestAnimationFrame(animateDash);
+        };
+        animateDash();
+      }
+
+      // Full route outline for reference
+      const allRouteCoords = [originCoords];
+      if (stopoverCoords) allRouteCoords.push(stopoverCoords);
+      allRouteCoords.push(destinationCoords);
 
       // Fit map to show all markers
       const bounds = new mapboxgl.LngLatBounds();
-      routeCoordinates.forEach(coord => bounds.extend(coord as [number, number]));
-      map.current.fitBounds(bounds, { padding: 50 });
+      allRouteCoords.forEach(coord => bounds.extend(coord as [number, number]));
+      map.current.fitBounds(bounds, { padding: 80 });
     });
 
     return () => {
