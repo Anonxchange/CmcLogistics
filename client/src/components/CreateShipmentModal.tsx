@@ -36,7 +36,8 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
     stopoverCountry: '',
     stopoverCity: '',
     stopoverLat: '',
-    stopoverLng: ''
+    stopoverLng: '',
+    status: 'pending'
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -46,6 +47,18 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
     { value: 'sea', label: 'Sea Freight' },
     { value: 'road', label: 'Road Transportation' },
     { value: 'express', label: 'Express Delivery' }
+  ];
+
+  const statusOptions = [
+    { value: 'pending', label: 'Pending' },
+    { value: 'picked_up', label: 'Picked Up' },
+    { value: 'in_transit', label: 'In Transit' },
+    { value: 'stopover', label: 'Stopover Point' },
+    { value: 'held_by_customs', label: 'Held by Customs' },
+    { value: 'out_for_delivery', label: 'Out for Delivery' },
+    { value: 'delivered', label: 'Delivered' },
+    { value: 'delayed', label: 'Delayed' },
+    { value: 'failed_delivery', label: 'Failed Delivery' }
   ];
 
   const handleInputChange = (field: string, value: string) => {
@@ -84,7 +97,7 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
         package_type: 'package', // Default value
         weight: formData.packageWeight || null,
         dimensions: formData.packageDimensions || null,
-        status: 'pending',
+        status: formData.status || 'pending',
         estimated_delivery: formData.estimatedDelivery || null,
         cost: formData.cost ? parseFloat(formData.cost) : null,
         clearance_cost: formData.clearanceCost ? parseFloat(formData.clearanceCost) : null,
@@ -106,7 +119,7 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
         .from('tracking_updates')
         .insert([{
           shipment_id: newShipment.id,
-          status: 'pending',
+          status: formData.status || 'pending',
           location: formData.currentLocation || 'Origin Facility',
           description: 'Shipment created and pending pickup',
           updated_by: parseInt(adminId)
@@ -142,7 +155,8 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
         stopoverCountry: '',
         stopoverCity: '',
         stopoverLat: '',
-        stopoverLng: ''
+        stopoverLng: '',
+        status: 'pending'
       });
       onSuccess();
     } catch (error) {
@@ -396,6 +410,21 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
             <h3 className="text-lg font-semibold">Logistics Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
+                <Label htmlFor="status">Status *</Label>
+                <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
+                  <SelectTrigger data-testid="select-status">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map((status) => (
+                      <SelectItem key={status.value} value={status.value}>
+                        {status.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label htmlFor="currentLocation">Current Location</Label>
                 <Input
                   id="currentLocation"
@@ -405,6 +434,8 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
                   data-testid="input-current-location"
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="estimatedDelivery">Estimated Delivery Date</Label>
                 <Input
