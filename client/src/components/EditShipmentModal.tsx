@@ -32,39 +32,58 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
     cost: '',
     clearanceCost: '',
     status: '',
+    currentLocation: '',
     stopoverCountry: '',
     stopoverCity: '',
     stopoverLat: '',
     stopoverLng: ''
   });
+  const [initialLocation, setInitialLocation] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (shipment) {
-      const coords = shipment.stopover_coordinates ? JSON.parse(shipment.stopover_coordinates) : null;
-      setFormData({
-        senderName: shipment.sender_name || '',
-        senderAddress: shipment.sender_address || '',
-        senderPhone: shipment.sender_phone || '',
-        senderEmail: shipment.sender_email || '',
-        recipientName: shipment.recipient_name || '',
-        recipientAddress: shipment.recipient_address || '',
-        recipientPhone: shipment.recipient_phone || '',
-        recipientEmail: shipment.recipient_email || '',
-        serviceType: shipment.service_type || '',
-        packageWeight: shipment.weight || '',
-        packageDimensions: shipment.dimensions || '',
-        estimatedDelivery: shipment.estimated_delivery ? new Date(shipment.estimated_delivery).toISOString().slice(0, 16) : '',
-        cost: shipment.cost?.toString() || '',
-        clearanceCost: shipment.clearance_cost?.toString() || '',
-        status: shipment.status || '',
-        stopoverCountry: shipment.stopover_country || '',
-        stopoverCity: shipment.stopover_city || '',
-        stopoverLat: coords?.lat?.toString() || '',
-        stopoverLng: coords?.lng?.toString() || ''
-      });
-    }
+    const fetchCurrentLocation = async () => {
+      if (shipment) {
+        const coords = shipment.stopover_coordinates ? JSON.parse(shipment.stopover_coordinates) : null;
+        
+        // Fetch the most recent tracking update to get current location
+        const { data: trackingUpdates } = await supabase
+          .from('tracking_updates')
+          .select('location')
+          .eq('shipment_id', shipment.id)
+          .order('timestamp', { ascending: false })
+          .limit(1);
+        
+        const currentLoc = trackingUpdates && trackingUpdates.length > 0 ? trackingUpdates[0].location : '';
+        setInitialLocation(currentLoc);
+        
+        setFormData({
+          senderName: shipment.sender_name || '',
+          senderAddress: shipment.sender_address || '',
+          senderPhone: shipment.sender_phone || '',
+          senderEmail: shipment.sender_email || '',
+          recipientName: shipment.recipient_name || '',
+          recipientAddress: shipment.recipient_address || '',
+          recipientPhone: shipment.recipient_phone || '',
+          recipientEmail: shipment.recipient_email || '',
+          serviceType: shipment.service_type || '',
+          packageWeight: shipment.weight || '',
+          packageDimensions: shipment.dimensions || '',
+          estimatedDelivery: shipment.estimated_delivery ? new Date(shipment.estimated_delivery).toISOString().slice(0, 16) : '',
+          cost: shipment.cost?.toString() || '',
+          clearanceCost: shipment.clearance_cost?.toString() || '',
+          status: shipment.status || '',
+          currentLocation: currentLoc,
+          stopoverCountry: shipment.stopover_country || '',
+          stopoverCity: shipment.stopover_city || '',
+          stopoverLat: coords?.lat?.toString() || '',
+          stopoverLng: coords?.lng?.toString() || ''
+        });
+      }
+    };
+    
+    fetchCurrentLocation();
   }, [shipment]);
 
   const serviceTypes = [
@@ -126,6 +145,23 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
         .eq('id', shipment.id);
 
       if (error) throw error;
+
+      // If current location has changed, create a new tracking update
+      if (formData.currentLocation && formData.currentLocation !== initialLocation) {
+        const { error: trackingError } = await supabase
+          .from('tracking_updates')
+          .insert([{
+            shipment_id: shipment.id,
+            status: formData.status,
+            location: formData.currentLocation,
+            description: `Location updated to ${formData.currentLocation}`,
+            updated_by: shipment.admin_id || null
+          }]);
+
+        if (trackingError) {
+          console.error('Failed to create tracking update:', trackingError);
+        }
+      }
 
       toast({
         title: "Shipment updated successfully",
@@ -397,6 +433,17 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
                   </SelectContent>
                 </Select>
               </div>
+              <div>
+                <Label htmlFor="currentLocation">Current Location</Label>
+                <Input
+                  id="currentLocation"
+                  placeholder="e.g., Processing Center, New York"
+                  value={formData.currentLocation}
+                  onChange={(e) => handleInputChange('currentLocation', e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="estimatedDelivery">Estimated Delivery Date</Label>
                 <Input
