@@ -1303,9 +1303,8 @@ export default function TrackingPage() {
                         // Find actual update for this status
                         let actualUpdate = trackingData.trackingUpdates.find((update: any) => update.status === step.status);
                         
-                        // If this is the active step and shipment is at stopover OR in_transit with stopover info, use stopover update
-                        if (isActive && (trackingData.shipment.status === 'stopover' || 
-                            (trackingData.shipment.status === 'in_transit' && trackingData.shipment.stopoverCity && trackingData.shipment.stopoverCountry))) {
+                        // If this is the active step and there's stopover data, check if we should show stopover info
+                        if (isActive && trackingData.shipment.stopoverCity && trackingData.shipment.stopoverCountry) {
                           const stopoverUpdate = trackingData.trackingUpdates.find((update: any) => update.status === 'stopover');
                           if (stopoverUpdate) {
                             actualUpdate = stopoverUpdate;
@@ -1378,8 +1377,7 @@ export default function TrackingPage() {
                               </div>
                               <p className={`text-sm leading-relaxed ${isCompleted ? 'text-muted-foreground' : 'text-muted-foreground/70'}`}>
                                 {actualUpdate ? actualUpdate.description || step.description : step.description}
-                                {isActive && (trackingData.shipment.status === 'stopover' || 
-                                  (trackingData.shipment.status === 'in_transit' && trackingData.shipment.stopoverCity && trackingData.shipment.stopoverCountry)) && (
+                                {isActive && trackingData.shipment.stopoverCity && trackingData.shipment.stopoverCountry && (
                                   <span className="block mt-2 text-cyan-600 font-medium">
                                     📍 Currently at stopover: {trackingData.shipment.stopoverCity}, {trackingData.shipment.stopoverCountry}
                                   </span>
