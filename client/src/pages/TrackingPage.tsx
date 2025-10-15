@@ -1247,7 +1247,9 @@ export default function TrackingPage() {
                           { status: 'out_for_delivery' },
                           { status: 'delivered' }
                         ];
-                        const currentStatusIndex = completeProcess.findIndex(step => step.status === trackingData.shipment.status);
+                        // Map stopover status to in_transit for progress calculation
+                        const currentStatus = trackingData.shipment.status === 'stopover' ? 'in_transit' : trackingData.shipment.status;
+                        const currentStatusIndex = completeProcess.findIndex(step => step.status === currentStatus);
                         const progressPercentage = currentStatusIndex >= 0 ? ((currentStatusIndex + 1) / completeProcess.length) * 100 : 0;
                         return `${progressPercentage}%`;
                       })()}`
@@ -1257,31 +1259,15 @@ export default function TrackingPage() {
                   <div className="space-y-6">
                     {/* Generate complete process steps */}
                     {(() => {
-                      const baseProcess = [
+                      // Define the standard timeline process (without stopover as a separate step)
+                      const completeProcess = [
                         { status: 'pending', title: 'Order Created', description: 'Your shipping order has been created and is being processed', defaultTime: '2024-01-15 09:00 AM' },
                         { status: 'picked_up', title: 'Package Picked Up', description: 'Your package has been collected from the sender', defaultTime: '2024-01-15 02:30 PM' },
-                        { status: 'in_transit', title: 'In Transit', description: 'Package is on its way to the destination', defaultTime: '2024-01-16 10:15 AM' }
-                      ];
-                      
-                      // Add stopover step if stopover is configured
-                      const hasStopover = trackingData.shipment.stopoverCountry && trackingData.shipment.stopoverCity;
-                      if (hasStopover) {
-                        baseProcess.push({
-                          status: 'stopover',
-                          title: 'Stopover Point',
-                          description: `Package at stopover: ${trackingData.shipment.stopoverCity}, ${trackingData.shipment.stopoverCountry}`,
-                          defaultTime: '2024-01-16 03:00 PM'
-                        });
-                      }
-                      
-                      // Add remaining steps
-                      baseProcess.push(
+                        { status: 'in_transit', title: 'In Transit', description: 'Package is on its way to the destination', defaultTime: '2024-01-16 10:15 AM' },
                         { status: 'held_by_customs', title: 'Customs Processing', description: 'Package is being processed by customs officials for inspection', defaultTime: '2024-01-16 06:30 PM' },
                         { status: 'out_for_delivery', title: 'Out for Delivery', description: 'Package is out for delivery to the final destination', defaultTime: '2024-01-17 08:45 AM' },
                         { status: 'delivered', title: 'Delivered', description: 'Package has been successfully delivered', defaultTime: '2024-01-17 03:20 PM' }
-                      );
-                      
-                      const completeProcess = baseProcess;
+                      ];
 
                       // Map status to icon based on service type for in_transit
                       const getSpecificIcon = (status: string) => {
@@ -1304,16 +1290,27 @@ export default function TrackingPage() {
                         }
                       };
 
-                      const currentStatusIndex = completeProcess.findIndex(step => step.status === trackingData.shipment.status);
+                      // Map stopover status to in_transit for timeline display
+                      const displayStatus = trackingData.shipment.status === 'stopover' ? 'in_transit' : trackingData.shipment.status;
+                      const currentStatusIndex = completeProcess.findIndex(step => step.status === displayStatus);
 
                       return completeProcess.map((step, index) => {
                         const StatusIcon = getSpecificIcon(step.status);
-                        const isCompleted = index <= currentStatusIndex;
+                        const isCompleted = index < currentStatusIndex;
                         const isActive = index === currentStatusIndex;
                         const isPending = index > currentStatusIndex;
 
                         // Find actual update for this status
-                        const actualUpdate = trackingData.trackingUpdates.find((update: any) => update.status === step.status);
+                        let actualUpdate = trackingData.trackingUpdates.find((update: any) => update.status === step.status);
+                        
+                        // If this is the active step and shipment is at stopover OR in_transit with stopover info, use stopover update
+                        if (isActive && (trackingData.shipment.status === 'stopover' || 
+                            (trackingData.shipment.status === 'in_transit' && trackingData.shipment.stopoverCity && trackingData.shipment.stopoverCountry))) {
+                          const stopoverUpdate = trackingData.trackingUpdates.find((update: any) => update.status === 'stopover');
+                          if (stopoverUpdate) {
+                            actualUpdate = stopoverUpdate;
+                          }
+                        }
 
                         return (
                           <div 
@@ -1381,6 +1378,12 @@ export default function TrackingPage() {
                               </div>
                               <p className={`text-sm leading-relaxed ${isCompleted ? 'text-muted-foreground' : 'text-muted-foreground/70'}`}>
                                 {actualUpdate ? actualUpdate.description || step.description : step.description}
+                                {isActive && (trackingData.shipment.status === 'stopover' || 
+                                  (trackingData.shipment.status === 'in_transit' && trackingData.shipment.stopoverCity && trackingData.shipment.stopoverCountry)) && (
+                                  <span className="block mt-2 text-cyan-600 font-medium">
+                                    📍 Currently at stopover: {trackingData.shipment.stopoverCity}, {trackingData.shipment.stopoverCountry}
+                                  </span>
+                                )}
                               </p>
 
                               {/* Progress indicator */}
@@ -1409,7 +1412,7 @@ export default function TrackingPage() {
                     </h4>
                     <div className="space-y-4">
                       {trackingData.trackingUpdates
-                        .filter((update: any) => !['pending', 'picked_up', 'in_transit', 'held_by_customs', 'out_for_delivery', 'delivered'].includes(update.status))
+                        .filter((update: any) => !['pending', 'picked_up', 'in_transit', 'stopover', 'held_by_customs', 'out_for_delivery', 'delivered'].includes(update.status))
                         .map((update: any, index: number) => {
                           const StatusIcon = getStatusIcon(update.status);
                           return (
