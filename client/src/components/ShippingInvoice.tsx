@@ -167,14 +167,14 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
               <tbody>
                 <tr>
                   <td className="py-3 px-2 border border-gray-400">1</td>
-                  <td className="py-3 px-2 border border-gray-400">{shipment.packageType || 'Parcel'}</td>
+                  <td className="py-3 px-2 border border-gray-400">{shipment.product_name || shipment.productName || shipment.packageType || 'Parcel'}</td>
                   <td className="py-3 px-2 border border-gray-400">
                     <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded border border-blue-300 whitespace-nowrap">
                       {shipment.status?.replace('_', ' ').toUpperCase() || 'In Transit'}
                     </span>
                   </td>
                   <td className="py-3 px-2 border border-gray-400 text-xs">
-                    {shipment.description || 'Package contents'}
+                    {shipment.package_description || shipment.packageDescription || 'Package contents'}
                   </td>
                 </tr>
               </tbody>
