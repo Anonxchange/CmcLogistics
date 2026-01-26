@@ -28,6 +28,8 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
     serviceType: '',
     packageWeight: '',
     packageDimensions: '',
+    productName: '',
+    packageDescription: '',
     estimatedDelivery: '',
     cost: '',
     clearanceCost: '',
@@ -70,6 +72,8 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
           serviceType: shipment.service_type || '',
           packageWeight: shipment.weight || '',
           packageDimensions: shipment.dimensions || '',
+          productName: shipment.product_name || '',
+          packageDescription: shipment.package_description || '',
           estimatedDelivery: shipment.estimated_delivery ? new Date(shipment.estimated_delivery).toISOString().slice(0, 16) : '',
           cost: shipment.cost?.toString() || '',
           clearanceCost: shipment.clearance_cost?.toString() || '',
@@ -137,6 +141,8 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
         stopover_country: formData.stopoverCountry || null,
         stopover_city: formData.stopoverCity || null,
         stopover_coordinates: stopoverCoords,
+        product_name: formData.productName || null,
+        package_description: formData.packageDescription || null,
       };
 
       const { error } = await supabase
@@ -388,6 +394,24 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
                 placeholder="e.g., 30 x 20 x 15 cm"
                 value={formData.packageDimensions}
                 onChange={(e) => handleInputChange('packageDimensions', e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="productName">Product Name (Optional)</Label>
+              <Input
+                id="productName"
+                placeholder="e.g., Electronics, Clothing, Furniture"
+                value={formData.productName}
+                onChange={(e) => handleInputChange('productName', e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="packageDescription">Package Description (Optional)</Label>
+              <Textarea
+                id="packageDescription"
+                placeholder="Description of package contents"
+                value={formData.packageDescription}
+                onChange={(e) => handleInputChange('packageDescription', e.target.value)}
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
