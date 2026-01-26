@@ -28,6 +28,7 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
     serviceType: '',
     packageWeight: '',
     packageDimensions: '',
+    productName: '',
     packageDescription: '',
     currentLocation: '',
     estimatedDelivery: '',
@@ -104,6 +105,8 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
         stopover_country: formData.stopoverCountry || null,
         stopover_city: formData.stopoverCity || null,
         stopover_coordinates: stopoverCoords,
+        product_name: formData.productName || null,
+        package_description: formData.packageDescription || null,
       };
 
       const { data: newShipment, error: shipmentError } = await supabase
@@ -147,6 +150,7 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
         serviceType: '',
         packageWeight: '',
         packageDimensions: '',
+        productName: '',
         packageDescription: '',
         currentLocation: '',
         estimatedDelivery: '',
@@ -394,7 +398,17 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
               </div>
             </div>
             <div>
-              <Label htmlFor="packageDescription">Package Description</Label>
+              <Label htmlFor="productName">Product Name (Optional)</Label>
+              <Input
+                id="productName"
+                placeholder="e.g., Electronics, Clothing, Furniture"
+                value={formData.productName}
+                onChange={(e) => handleInputChange('productName', e.target.value)}
+                data-testid="input-product-name"
+              />
+            </div>
+            <div>
+              <Label htmlFor="packageDescription">Package Description (Optional)</Label>
               <Textarea
                 id="packageDescription"
                 placeholder="Description of package contents"
