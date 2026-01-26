@@ -40,6 +40,8 @@ export const shipments = pgTable('shipments', {
   stopoverCountry: text('stopover_country'),
   stopoverCity: text('stopover_city'),
   stopoverCoordinates: text('stopover_coordinates'), // JSON string for lat, lng
+  productName: text('product_name'), // Optional product name for invoice
+  packageDescription: text('package_description'), // Optional package description for invoice
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
