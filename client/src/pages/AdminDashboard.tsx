@@ -204,6 +204,8 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
       cost: shipment.cost,
       clearance_cost: shipment.clearance_cost,
       stopover: shipment.stopover,
+      productName: shipment.product_name,
+      packageDescription: shipment.package_description,
     };
     setSelectedShipment(transformedShipment);
     setIsPrintModalOpen(true);
