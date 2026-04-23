@@ -40,9 +40,9 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
         return;
       }
 
-      // For now, we'll use plain text comparison since the demo password is "admin123"
+      // For now, we'll use plain text comparison since the demo password is "Ola4714"
       // In production, you should hash passwords properly
-      if (data.password === password || password === 'admin123') {
+      if (data.password === password || password === 'Ola4714') {
         toast({
           title: "Login successful",
           description: "Welcome to the admin dashboard",
