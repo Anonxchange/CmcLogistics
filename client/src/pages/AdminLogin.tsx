@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 interface AdminLoginProps {
   onLoginSuccess: (admin: any) => void;
+}
 export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -32,6 +33,7 @@ try {
           variant: "destructive",
         });
         return;
+      }
       // Hardcoded password — only "Ola4714" is accepted, ignore DB password
       if (password === 'Ola4714') {
         toast({
