@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
+import { fetchCMCShipments } from '@/lib/shipmentQueries';
 import CreateShipmentModal from '@/components/CreateShipmentModal';
 import EditShipmentModal from '@/components/EditShipmentModal';
 import ShipmentsList from '@/components/ShipmentsList';
@@ -68,13 +69,8 @@ export default function AdminDashboard({ admin, onLogout }: AdminDashboardProps)
 
   const fetchDashboardData = async () => {
     try {
-      // Fetch all shipments
-      const { data: shipmentsData, error: shipmentsError } = await supabase
-        .from('shipments')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (shipmentsError) throw shipmentsError;
+      // Fetch CMC shipments only (excludes SmartShip shipments)
+      const shipmentsData = await fetchCMCShipments();
 
       // Fetch car purchases
       const { data: carPurchasesData, error: carPurchasesError } = await supabase
