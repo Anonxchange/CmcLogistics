@@ -32,6 +32,7 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
     packageDescription: '',
     currentLocation: '',
     estimatedDelivery: '',
+    departureDate: '',
     cost: '',
     clearanceCost: '',
     stopoverCountry: '',
@@ -100,6 +101,7 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
         dimensions: formData.packageDimensions || null,
         status: formData.status || 'pending',
         estimated_delivery: formData.estimatedDelivery || null,
+        departure_date: formData.departureDate || null,
         cost: formData.cost ? parseFloat(formData.cost) : null,
         clearance_cost: formData.clearanceCost ? parseFloat(formData.clearanceCost) : null,
         stopover_country: formData.stopoverCountry || null,
@@ -154,6 +156,7 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
         packageDescription: '',
         currentLocation: '',
         estimatedDelivery: '',
+        departureDate: '',
         cost: '',
         clearanceCost: '',
         stopoverCountry: '',
@@ -458,6 +461,16 @@ export default function CreateShipmentModal({ isOpen, onClose, onSuccess, adminI
                   value={formData.estimatedDelivery}
                   onChange={(e) => handleInputChange('estimatedDelivery', e.target.value)}
                   data-testid="input-estimated-delivery"
+                />
+              </div>
+              <div>
+                <Label htmlFor="departureDate">Departure Date</Label>
+                <Input
+                  id="departureDate"
+                  type="datetime-local"
+                  value={formData.departureDate}
+                  onChange={(e) => handleInputChange('departureDate', e.target.value)}
+                  data-testid="input-departure-date"
                 />
               </div>
             </div>
