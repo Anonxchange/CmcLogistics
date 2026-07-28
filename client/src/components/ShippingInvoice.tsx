@@ -83,15 +83,12 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
             <p className="text-lg sm:text-2xl font-bold break-all">Tracking Number: {trackingNumber}</p>
           </div>
 
-          {/* Departure Date/Time Banner */}
+          {/* Departure Date/Time */}
           {departureDate && (
-            <div className="px-4 sm:px-6 py-3 bg-blue-50 border-b border-blue-200 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-              <span className="text-xs font-bold uppercase tracking-widest text-blue-700 whitespace-nowrap">
-                🕐 Departure Date / Time
-              </span>
-              <span className="text-sm font-semibold text-gray-800">
-                {formatDate(departureDate)}
-              </span>
+            <div className="px-4 sm:px-6 py-2 border-b bg-white">
+              <p className="text-sm text-gray-700">
+                <strong>Departure Date:</strong> {formatDate(departureDate)}
+              </p>
             </div>
           )}
 
