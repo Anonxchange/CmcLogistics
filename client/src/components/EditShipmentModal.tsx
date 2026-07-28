@@ -31,6 +31,7 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
     productName: '',
     packageDescription: '',
     estimatedDelivery: '',
+    departureDate: '',
     cost: '',
     clearanceCost: '',
     status: '',
@@ -75,6 +76,7 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
           productName: shipment.product_name || '',
           packageDescription: shipment.package_description || '',
           estimatedDelivery: shipment.estimated_delivery ? new Date(shipment.estimated_delivery).toISOString().slice(0, 16) : '',
+          departureDate: shipment.departure_date ? new Date(shipment.departure_date).toISOString().slice(0, 16) : '',
           cost: shipment.cost?.toString() || '',
           clearanceCost: shipment.clearance_cost?.toString() || '',
           status: shipment.status || '',
@@ -136,6 +138,7 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
         dimensions: formData.packageDimensions || null,
         status: formData.status,
         estimated_delivery: formData.estimatedDelivery || null,
+        departure_date: formData.departureDate || null,
         cost: formData.cost ? parseFloat(formData.cost) : null,
         clearance_cost: formData.clearanceCost ? parseFloat(formData.clearanceCost) : null,
         stopover_country: formData.stopoverCountry || null,
@@ -475,6 +478,15 @@ export default function EditShipmentModal({ isOpen, onClose, onSuccess, shipment
                   type="datetime-local"
                   value={formData.estimatedDelivery}
                   onChange={(e) => handleInputChange('estimatedDelivery', e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="departureDate">Departure Date</Label>
+                <Input
+                  id="departureDate"
+                  type="datetime-local"
+                  value={formData.departureDate}
+                  onChange={(e) => handleInputChange('departureDate', e.target.value)}
                 />
               </div>
             </div>
