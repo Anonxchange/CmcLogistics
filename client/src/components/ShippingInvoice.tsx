@@ -15,6 +15,8 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
     const clearanceCost = Number(shipment.clearance_cost ?? shipment.clearanceCost ?? 0);
     const totalCost = cost + clearanceCost;
     
+    const departureDate = shipment.departure_date ?? shipment.departureDate ?? null;
+
     const formatDate = (date: any) => {
       if (!date) return 'N/A';
       try {
@@ -79,6 +81,11 @@ const ShippingInvoice = forwardRef<HTMLDivElement, ShippingInvoiceProps>(
           {/* Tracking Number */}
           <div className="px-4 sm:px-6 py-3 sm:py-4 bg-white border-b">
             <p className="text-lg sm:text-2xl font-bold break-all">Tracking Number: {trackingNumber}</p>
+            {departureDate && (
+              <p className="text-sm text-gray-600 mt-1">
+                <strong>Departure Date:</strong> {formatDate(departureDate)}
+              </p>
+            )}
           </div>
 
           {/* Company Info */}
